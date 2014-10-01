@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>streaming_demo</string>
+	<key>CFBundleIconFile</key>
+	<string>L3D.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>streaming_demo</string>
+	<key>CFBundleDisplayName</key>
+	<string>streaming_demo</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>streaming_demo</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Your copyright here</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Created with Processing</string>
+	<key>JVMRuntime</key>
+	<string>jdk1.7.0_55.jdk</string>
+	<key>JVMMainClassName</key>
+	<string>streaming_demo</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.7.3</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>LSArchitecturePriority</key>
+	<array>
+		<string>x86_64</string>
+	</array>
+	<key>LSEnvironment</key>
+	<dict>
+		<key>LC_CTYPE</key>
+		<string>UTF-8</string>
+	</dict>
+	<key>LSUIPresentationMode</key>
+	<integer>4</integer>
+	<key>JVMOptions</key>
+	<array>
+		<string>-Djna.nosys=true</string>
+		<string>-Xdock:icon=Contents/Resources/sketch.icns</string>
+		<string>-Dapple.laf.useScreenMenuBar=true</string>
+		<string>-Dcom.apple.macos.use-file-dialog-packages=true</string>
+		<string>-Dcom.apple.macos.useScreenMenuBar=true</string>
+		<string>-Dcom.apple.mrj.application.apple.menu.about.name=streaming_demo</string>
+		<string>-Dcom.apple.smallTabs=true</string>
+	</array>
+	<key>JVMArguments</key>
+	<array/>
+</dict>
+</plist>
