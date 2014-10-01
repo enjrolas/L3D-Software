@@ -38,4 +38,4 @@ colors.h — defines some datatypes
 !(http://cl.ly/image/39392f402n1a/Screen%20Shot%202014-10-01%20at%2012.30.12%20PM.png)
 
 3. Next, you’ll need to add the spark neopixel library.  Click on the ‘libraries’ icon:
-!(http://cl.ly/image/1g3a3t0P3z3k/Screen%20Shot%202014-10-01%20at%2012.30.24%20PM.png)
+![alt](http://cl.ly/image/1g3a3t0P3z3k/Screen%20Shot%202014-10-01%20at%2012.30.24%20PM.png)
