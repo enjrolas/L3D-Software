@@ -31,11 +31,48 @@ colors.cpp — a couple functions for handling colors
 colors.h — defines some datatypes
 
 1. Create a new app in the spark editor — you can call it anything you like, but for this example, let’s say you call it ‘myApp’
-!(http://cl.ly/image/161p0M0j2z3C/Screen%20Shot%202014-10-01%20at%2012.29.23%20PM.png)
-!(http://cl.ly/image/0i2a1J2U331u/Screen%20Shot%202014-10-01%20at%2012.29.29%20PM.png)
+![creating a new app](http://cl.ly/image/161p0M0j2z3C/Screen%20Shot%202014-10-01%20at%2012.29.23%20PM.png)
+![naming the app](http://cl.ly/image/0i2a1J2U331u/Screen%20Shot%202014-10-01%20at%2012.29.29%20PM.png)
 
-2. The editor will open up with a single file, myApp.ino  Copy all the code in your local copy of demo.ino and paste it into the myApp.ino file in your browser
-!(http://cl.ly/image/39392f402n1a/Screen%20Shot%202014-10-01%20at%2012.30.12%20PM.png)
+2. The editor will open up with a single file, myApp.ino  Copy all the code in your local copy of demo.ino and paste it into the myApp.ino file in your browser.  Once it’s pasted, ** be sure to click ‘save’ **.
+![pasting in new code](http://cl.ly/image/39392f402n1a/Screen%20Shot%202014-10-01%20at%2012.30.12%20PM.png)
 
 3. Next, you’ll need to add the spark neopixel library.  Click on the ‘libraries’ icon:
-![alt](http://cl.ly/image/1g3a3t0P3z3k/Screen%20Shot%202014-10-01%20at%2012.30.24%20PM.png)
+![library icon](http://cl.ly/image/1g3a3t0P3z3k/Screen%20Shot%202014-10-01%20at%2012.30.24%20PM.png)
+
+Next, find the ‘neopixel’ library in the list of libraries (it’s quite popular, so it’s usually at the very top), and click on it.
+![neopixel library](http://cl.ly/image/3C450h1x0L39/Screen%20Shot%202014-10-01%20at%2012.30.29%20PM.png)
+
+Scroll down on the left side of the screen, and click the ‘include in app’ button:
+
+![include in app](http://cl.ly/image/0X1A1l281q2G/Screen%20Shot%202014-10-01%20at%2012.30.40%20PM.png)
+
+It will display a list of all your apps.  Scroll to the bottom and select ‘myApp’
+
+![select your app](http://cl.ly/image/0q1B2x3i2f1T/Screen%20Shot%202014-10-01%20at%2012.30.46%20PM.png)
+
+Scroll down to the bottom of a list again, and click ‘add to this app’
+
+![add to this app](http://cl.ly/image/1y1K3M0N0X2u/Screen%20Shot%202014-10-01%20at%2012.30.54%20PM.png)
+
+Great!  That’s all done
+
+4. Finally, you need to add the colors.h and colors.cpp files to the sketch.  Click the ‘+’ icon on the top-right of the web interface.
+
+![add files](http://cl.ly/image/0N2b0Z1m3O2J/Screen%20Shot%202014-10-01%20at%2012.59.25%20PM.png)
+
+It will create a .cpp and .h file, and prompt you to enter a name for the files.  Type in ‘colors.h’, and it will automatically rename both files.
+
+![renaming files](http://cl.ly/image/3r3u1N362W2J/Screen%20Shot%202014-10-01%20at%2012.59.28%20PM.png)
+
+Paste in the code from both colors.h and colors.cpp
+
+![pasting code](http://cl.ly/image/0G253T2n2g45/Screen%20Shot%202014-10-01%20at%2012.59.38%20PM.png)
+
+Aaaand you’re good to go!
+
+5.  To load the code onto your spark, just click the ‘flash program’ icon on the top left of the interface
+
+![flash program](http://cl.ly/image/3d18301k1N3E/Screen%20Shot%202014-10-01%20at%201.01.49%20PM.png)
+
+The color LED on your spark should quickly turn purple and begin flashing to show that the program is loading.  It usually takes about 20 seconds to load a new program, although we’ve seen it take xup to a minute when we’re working outside of the US.
