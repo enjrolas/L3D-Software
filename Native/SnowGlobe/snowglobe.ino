@@ -54,6 +54,8 @@ void render_image(uint8_t* image, int xoff, int yoff, int depth) {
 }
 
 //uint8_t* street[3] = { image_low, image_tall, image_overhang };
+uint8_t* left_building = image_low;
+uint8_t* right_building = image_overhang;
 
 void loop() {
     if(!digitalRead(BUTTON))
@@ -67,17 +69,18 @@ void loop() {
     if(++timer > 128) {
         timer = 0;
 
-        /*
-        uint8_t* left_building = street[(streetpos/8)%3];
-        uint8_t* right_building = street[(streetpos/8-1)%3];
-        */
-
-        render_image(image_low, streetpos-8, 0, 7);
-        render_image(image_overhang, streetpos, 0, 7);
+        render_image(left_building, streetpos%8-8, 0, 7);
+        render_image(right_building, streetpos%8, 0, 7);
 
         strip.show();
 
         streetpos++;
+
+        if(streetpos % 8 == 0) {
+            uint8_t* swap = left_building;
+            left_building = right_building;
+            right_building = swap;
+        }
     }
 }
 
