@@ -2,6 +2,7 @@
 
 import sys
 from PIL import Image
+from os.path import basename, splitext
 
 if not len(sys.argv) == 2:
     print "usage: make8x8 <image>"
@@ -12,7 +13,7 @@ filename = sys.argv[1]
 image = Image.open(filename)
 pixels = image.load()
 
-imageArray = "uint8_t image[192] = {\n"
+imageArray = "uint8_t image_{0}[192] = {{\n".format(splitext(basename(filename))[0])
 
 if image.size == (8, 8):
     for y in range(0, 8):
