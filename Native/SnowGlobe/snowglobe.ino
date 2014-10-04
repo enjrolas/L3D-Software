@@ -28,6 +28,10 @@ color c = { 128, 128, 128 };
 int timer = 0;
 int streetpos = 0;
 
+uint8_t* street[3] = { image_low, image_tall, image_overhang };
+uint8_t* left_building = street[0];
+uint8_t* right_building = street[1];
+
 void setup() {
     strip.begin();
 
@@ -53,9 +57,6 @@ void render_image(uint8_t* image, int xoff, int yoff, int depth) {
     }
 }
 
-//uint8_t* street[3] = { image_low, image_tall, image_overhang };
-uint8_t* left_building = image_low;
-uint8_t* right_building = image_overhang;
 
 void loop() {
     if(!digitalRead(BUTTON))
@@ -77,9 +78,8 @@ void loop() {
         streetpos++;
 
         if(streetpos % 8 == 0) {
-            uint8_t* swap = left_building;
-            left_building = right_building;
-            right_building = swap;
+            right_building = left_building;
+            left_building = street[(streetpos/8+1)%3];
         }
     }
 }
