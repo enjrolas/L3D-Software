@@ -16,6 +16,9 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
 #define PIN_Y 14
 #define PIN_Z 15
 
+#define NUM_BUILDINGS 3
+#define BUILDING_DEPTH 2
+
 typedef struct {
     float x, y, z;
 } vector;
@@ -28,9 +31,15 @@ color c = { 128, 128, 128 };
 int timer = 0;
 int streetpos = 0;
 
-uint8_t* street[3] = { image_low, image_tall, image_overhang };
+// TODO vary building width
+uint8_t* street[NUM_BUILDINGS] = { image_low, image_tall, image_overhang };
+uint8_t building_heights[NUM_BUILDINGS] = { 3, 6, 6 };
 uint8_t* left_building = street[0];
 uint8_t* right_building = street[1];
+uint8_t left_height = building_heights[0];
+uint8_t right_height = building_heights[1];
+
+color body_color = { 3, 3, 2 };
 
 void setup() {
     strip.begin();
@@ -57,6 +66,25 @@ void render_image(uint8_t* image, int xoff, int yoff, int depth) {
     }
 }
 
+void building_body(int xoff, int height, color* c) {
+    for(int depth=BUILDING_DEPTH-1; depth >= 0; depth--) {
+        int roof_height = height + BUILDING_DEPTH - depth;
+        
+        // fill in
+        for(int y=0; y < roof_height; y++) {
+            for(int x=0; x < 8; x++) {
+                setPixel(xoff + x, y, depth, c);
+            }
+        }
+
+        // clear
+        for(int y=roof_height; y < 8; y++) {
+            for(int x=0; x < 8; x++) {
+                setPixel(xoff + x, y, depth, &blank);
+            }
+        }
+    }
+}
 
 void loop() {
     if(!digitalRead(BUTTON))
@@ -70,16 +98,26 @@ void loop() {
     if(++timer > 128) {
         timer = 0;
 
-        render_image(left_building, streetpos%8-8, 0, 7);
-        render_image(right_building, streetpos%8, 0, 7);
+        int left_pos = streetpos%8-8;
+        int right_pos = streetpos%8;
+
+        render_image(left_building, left_pos, 0, BUILDING_DEPTH);
+        building_body(left_pos, left_height, &body_color);
+        render_image(right_building, right_pos, 0, BUILDING_DEPTH);
+        building_body(right_pos, right_height, &body_color);
 
         strip.show();
 
         streetpos++;
 
         if(streetpos % 8 == 0) {
+            int i = (rand() >> 8) % NUM_BUILDINGS;
+
             right_building = left_building;
-            left_building = street[(streetpos/8+1)%3];
+            right_height = left_height;
+
+            left_building = street[i];
+            left_height = building_heights[i];
         }
     }
 }
