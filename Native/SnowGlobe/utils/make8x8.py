@@ -17,13 +17,13 @@ imageArray = "uint8_t image_{0}[192] = {{\n".format(splitext(basename(filename))
 
 if image.size == (8, 8):
     for y in range(0, 8):
-        imageArray += "\t"
+        imageArray += "    "
 
         for x in range(0, 8):
             for chan in pixels[x, y]:
                 imageArray += "{0:#0{1}x}".format(chan, 4) + ", "
             if x == 3:
-                imageArray += "\n\t"
+                imageArray += "\n    "
         imageArray += "\n"
 
 imageArray += "};"
