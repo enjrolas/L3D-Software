@@ -13,20 +13,60 @@ int colorific;
 bool fading=false;
 int fadeValue=255;
 
+
+bool onlinePressed=false;
+bool lastOnline=true;
+
 void setup() {
     strip.begin();
     Spark.variable("colorific", &colorific, INT);
     //set the input mode for the 'connect to cloud' button
-    pinMode(BUTTON, INPUT);
-    
+    initCloudButton();
+
+    //initialize all the matrix 'strands'
+    for(int i=0;i<MATRIX_STRANDS;i++)
+        newMatrix(&matrices[i]);
 }
 
-void loop() {
+//sets up the online/offline switch
+void initCloudButton()
+{
+  //set the input mode for the 'connect to cloud' button
+  pinMode(BUTTON, INPUT_PULLUP);
+    //a.k.a. onlinePressed is HIGH when the switch is set to 'online' and LOW when the switch is set to 'offline'
+    onlinePressed=digitalRead(BUTTON);
+    if(onlinePressed)
+        Spark.connect();
+}
+
+//checks to see if the 'online/offline' switch is switched
+void checkCloudButton()
+{
     //if the 'connect to cloud' button is pressed, try to connect to wifi.  
     //otherwise, run the program
     //note -- how does this behave when there are no wifi credentials loaded on the spark?
-    if(!digitalRead(BUTTON))
+
+    //onlinePressed is HIGH when the switch is _not_ connected and LOW when the switch is connected
+    //a.k.a. onlinePressed is HIGH when the switch is set to 'online' and LOW when the switch is set to 'offline'
+    onlinePressed=digitalRead(BUTTON);
+    
+    if((!onlinePressed)&&(lastOnline))  //marked as 'offline'
+    {
+        lastOnline=onlinePressed;
+        Spark.disconnect();
+    }    
+
+    else if((onlinePressed)&&(!lastOnline))  //marked as 'online'
+    {
+        lastOnline=onlinePressed;
         Spark.connect();
+    }
+
+    lastOnline=onlinePressed;
+}
+
+void loop() {
+   checkCloudButton();
         
     if(!fading)
     {

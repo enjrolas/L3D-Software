@@ -55,7 +55,6 @@ void setup()
     //initialize all the matrix 'strands'
     for(int i=0;i<MATRIX_STRANDS;i++)
         newMatrix(&matrices[i]);
-        
 }
 
 //sets up the online/offline switch
