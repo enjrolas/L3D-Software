@@ -31,20 +31,34 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
         //y += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
         z += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
 
-        const float accel_div = 8.0f;
+        const float accel_div = 2.0f;
         x += ax / accel_div;
         y += ay / accel_div;
         z += az / accel_div;
 
+        for(int j=0; j < count; j++) {
+            if(i != j) {
+                float bx = particles[j*3];
+                float by = particles[j*3+1];
+                float bz = particles[j*3+2];
+
+                if(abs(x-bx)+abs(y-by)+abs(z-bz) < 1) {
+                    x += rand() % 3 - 1;
+                    y += rand() % 3 - 1;
+                    z += rand() % 3 - 1;
+                }
+            }
+        }
+
         // boundaries
-        if(x > 7) x = 0;
-        if(x < 0) x = 7;
+        if(x > 7) x = 7;
+        if(x < 0) x = 0;
 
-        if(z > 7) z = 0;
-        if(z < 0) z = 7;
+        if(z > 7) z = 7;
+        if(z < 0) z = 0;
 
-        if(y > 7) y = 0;
-        if(y < 0) y = 7;
+        if(y > 7) y = 7;
+        if(y < 0) y = 0;
 
         /*
         int hx = (int)x;
