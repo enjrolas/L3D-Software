@@ -118,10 +118,11 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
     }
 }
 
+uint32_t t = 0;
 void render_particles(float* particles, int count) {
     if(!cached) {
         float mu = -2; // moves gaussian center
-        float sig = 1.5; // scales gaussian width (bigger values -> thinner gaussian)
+        float sig = 4; // scales gaussian width (bigger values -> thinner gaussian)
 
         float scale = 1.0 / exp(-pow(0-mu, 2) / 2.0 * pow(sig, 2)); // scale factor to ensure curve is 1.0 at x = 0
         for(int x=0; x < PARTICLE_SIZE; x++) {
@@ -131,21 +132,38 @@ void render_particles(float* particles, int count) {
         cached = true;
     }
 
-    for(int i=0; i < count; i++) {
+    const double timescale = 64.0;
+    for(int z=0; z < 8; z++) {
+        for(int x=0; x < 8; x++) {
+            //heightmap[x][z] = (int)(3.0*exp(-(pow(x-4, 2)/sig+pow(z-4, 2)/sig)));
+            double cx = 32.0 * cos(t/timescale) + 8;
+            double cz = 32.0 * sin(t/timescale) + 12;
+
+            heightmap[x][z] = (int)(3.0*(1+sin(3.14*sqrt(pow(x-cx, 2)+pow(z-cz, 2))/8.0)));
+        }
+    }
+
+    /*for(int i=0; i < count; i++) {
         float px = particles[i*3];
         float py = particles[i*3+1];
         float pz = particles[i*3+2];
 
         setPixel((int)px, (int)py, (int)pz, &color_snow);
-    }
+    }*/
 
     for(int z=0; z < 8; z++) {
         for(int x=0; x < 8; x++) {
             for(int y=0; y < heightmap[x][z]; y++) {
-                setPixel(x, y, z, &color_snowdrift);
+                stroke.red = 16 + (7-x)*(128/8);
+                stroke.green = 16 + (7-y)*(128/8);
+                stroke.blue = 16 + (7-z)*(128/8);
+
+                setPixel(x, y, z, &stroke);
             }
         }
     }
+
+    t++;
 }
 
 void clear_particles(float* particles, int count) {

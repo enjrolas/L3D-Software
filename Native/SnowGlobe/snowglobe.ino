@@ -106,8 +106,6 @@ void loop() {
     float accel_y = -(float)(analogRead(PIN_Y) - 2048) / 2048.0f;
     float accel_z = (float)(analogRead(PIN_Z) - 2048) / 2048.0f;
 
-    Serial_printf("%f,\t\t%f,\t\t%f\n", accel_x, accel_y, accel_z);
-
     clear_particles(particles, NUM_PARTICLES);
     update_particles(particles, NUM_PARTICLES, accel_x, accel_y, accel_z);
     render_particles(particles, NUM_PARTICLES);
