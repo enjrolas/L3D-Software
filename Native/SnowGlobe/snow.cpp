@@ -19,8 +19,20 @@ float gaussian[PARTICLE_SIZE];
 bool cached = false;
 
 uint8_t heightmap[8][8];
+uint32_t t = 0;
 
 void update_particles(float* particles, int count, float ax, float ay, float az) {
+    const double timescale = 128.0;
+    for(int z=0; z < 8; z++) {
+        for(int x=0; x < 8; x++) {
+            //heightmap[x][z] = (int)(3.0*exp(-(pow(x-4, 2)/sig+pow(z-4, 2)/sig)));
+            double cx = 32.0 * cos(t/timescale) + 8;
+            double cz = 32.0 * sin(t/timescale) + 12;
+
+            heightmap[x][z] = (int)(1.5*(1+sin(3.14*sqrt(pow(x-cx, 2)+pow(z-cz, 2))/8.0)));
+        }
+    }
+
     for(int i=0; i < count; i++) {
         float x = particles[i*3];
         float y = particles[i*3+1];
@@ -31,7 +43,7 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
         //y += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
         z += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
 
-        const float accel_div = 2.0f;
+        const float accel_div = 3.0f;
         x += ax / accel_div;
         y += ay / accel_div;
         z += az / accel_div;
@@ -42,7 +54,7 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
                 float by = particles[j*3+1];
                 float bz = particles[j*3+2];
 
-                if(abs(x-bx)+abs(y-by)+abs(z-bz) < 1) {
+                if(abs(x-bx)+abs(y-by)+abs(z-bz) < 0.5) {
                     x += rand() % 3 - 1;
                     y += rand() % 3 - 1;
                     z += rand() % 3 - 1;
@@ -60,15 +72,10 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
         if(y > 7) y = 7;
         if(y < 0) y = 0;
 
-        /*
         int hx = (int)x;
         int hz = (int)z;
-        if(y < 0 || y <= heightmap[hx][hz]) {
-            if(heightmap[hx][hz] < 7)
-                heightmap[hx][hz]++;
-            y = 7;
-        }
-        */
+        if(y < heightmap[hx][hz])
+            y = heightmap[hx][hz];
 
         // snow flow
         /*
@@ -118,7 +125,6 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
     }
 }
 
-uint32_t t = 0;
 void render_particles(float* particles, int count) {
     if(!cached) {
         float mu = -2; // moves gaussian center
@@ -132,31 +138,23 @@ void render_particles(float* particles, int count) {
         cached = true;
     }
 
-    const double timescale = 64.0;
-    for(int z=0; z < 8; z++) {
-        for(int x=0; x < 8; x++) {
-            //heightmap[x][z] = (int)(3.0*exp(-(pow(x-4, 2)/sig+pow(z-4, 2)/sig)));
-            double cx = 32.0 * cos(t/timescale) + 8;
-            double cz = 32.0 * sin(t/timescale) + 12;
-
-            heightmap[x][z] = (int)(3.0*(1+sin(3.14*sqrt(pow(x-cx, 2)+pow(z-cz, 2))/8.0)));
-        }
-    }
-
-    /*for(int i=0; i < count; i++) {
+    for(int i=0; i < count; i++) {
         float px = particles[i*3];
         float py = particles[i*3+1];
         float pz = particles[i*3+2];
 
         setPixel((int)px, (int)py, (int)pz, &color_snow);
-    }*/
+    }
+
+    const int c_range = 32;
+    const int c_offset = 4;
 
     for(int z=0; z < 8; z++) {
         for(int x=0; x < 8; x++) {
             for(int y=0; y < heightmap[x][z]; y++) {
-                stroke.red = 16 + (7-x)*(128/8);
-                stroke.green = 16 + (7-y)*(128/8);
-                stroke.blue = 16 + (7-z)*(128/8);
+                stroke.red = c_offset + (7-x)*(c_range/8);
+                stroke.green = c_offset + (7-y)*(c_range/8);
+                stroke.blue = c_offset + (7-z)*(c_range/8);
 
                 setPixel(x, y, z, &stroke);
             }
