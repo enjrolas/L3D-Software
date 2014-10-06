@@ -8,7 +8,7 @@
 #include "snow.h"
 
 color color_snow = { 200, 200, 200 };
-color color_snowdrift = { 100, 100, 100 };
+color color_snowdrift = { 50, 50, 50 };
 color stroke = { 200, 200, 200 };
 
 vector wind = { 0, 0, 0 };
@@ -27,7 +27,7 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
 
         x += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
         z += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
-        y -= (float)(rand() % 8) / 16.0f;
+        y -= (float)(rand() % 8) / 32.0f;
 
         // boundaries
         if(x > 7) x = 0;
@@ -42,6 +42,45 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
             if(heightmap[(int)x][(int)z] < 7)
                 heightmap[(int)x][(int)z]++;
             y = 7;
+        }
+
+        // snow flow
+        uint8_t neighbors[4];
+        for(int y=0; y < 8; y++) {
+            for(int x=0; x < 8; x++) {
+                neighbors[0] = heightmap[(x-1)%8][y%8];
+                neighbors[1] = heightmap[x%8][(y-1)%8];
+                neighbors[2] = heightmap[(x+1)%8][y%8];
+                neighbors[3] = heightmap[x%8][(y+1)%8];
+
+                int min_i = 0;
+                int min = neighbors[0];
+                for(int i=1; i < 4; i++) {
+                    if(neighbors[i] < min) {
+                        min = neighbors[i];
+                        min_i = i;
+                    }
+                }
+
+                if(min < heightmap[x][y]-1) {
+                    heightmap[x][y]--;
+
+                    switch(min_i) {
+                        case 0:
+                            heightmap[(x-1)%8][y%8]++;
+                            break;
+                        case 1:
+                            heightmap[x%8][(y-1)%8]++;
+                            break;
+                        case 2:
+                            heightmap[(x+1)%8][y%8]++;
+                            break;
+                        case 3:
+                            heightmap[x%8][(y+1)%8]++;
+                            break;
+                    }
+                }
+            }
         }
 
         // update
