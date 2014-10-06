@@ -1,5 +1,7 @@
 #include "application.h"
 
+#include <stdarg.h>
+
 #include "colors.h"
 #include "math.h"
 
@@ -9,9 +11,9 @@
 
 SYSTEM_MODE(SEMI_AUTOMATIC)
 
-#define PIN_X 13
-#define PIN_Y 14
-#define PIN_Z 15
+#define PIN_X 14
+#define PIN_Y 15
+#define PIN_Z 13
 
 #define NUM_BUILDINGS 3
 #define BUILDING_DEPTH 2
@@ -37,6 +39,16 @@ uint8_t left_height = building_heights[0];
 uint8_t right_height = building_heights[1];
 
 color body_color = { 3, 3, 2 };
+
+#define PRINTF_BUFFER_SIZE 128
+void Serial_printf(const char* fmt, ...) {
+    char buff[PRINTF_BUFFER_SIZE];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buff, PRINTF_BUFFER_SIZE, fmt, args);
+    va_end(args);
+    Serial.println(buff);
+}
 
 void setup() {
     cube_init();
@@ -90,17 +102,15 @@ void building_body(int xoff, int height, color* c) {
 
 void loop() {
     // read accelerometer
-    int accel_x = analogRead(PIN_X);
-    int accel_y = analogRead(PIN_Y);
-    int accel_z = analogRead(PIN_Z);
+    float accel_x = (float)(analogRead(PIN_X) - 2048) / 2048.0f;
+    float accel_y = -(float)(analogRead(PIN_Y) - 2048) / 2048.0f;
+    float accel_z = (float)(analogRead(PIN_Z) - 2048) / 2048.0f;
 
-    if(++ptimer > 32) {
-        ptimer = 0;
+    Serial_printf("%f,\t\t%f,\t\t%f\n", accel_x, accel_y, accel_z);
 
-        clear_particles(particles, NUM_PARTICLES);
-        update_particles(particles, NUM_PARTICLES, 0, 0, 0);
-        render_particles(particles, NUM_PARTICLES);
-        cube_update();
-    }
+    clear_particles(particles, NUM_PARTICLES);
+    update_particles(particles, NUM_PARTICLES, accel_x, accel_y, accel_z);
+    render_particles(particles, NUM_PARTICLES);
+    cube_update();
 }
 

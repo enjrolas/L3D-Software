@@ -14,6 +14,7 @@ color stroke = { 200, 200, 200 };
 vector wind = { 0, 0, 0 };
 
 #define PARTICLE_SIZE 4
+int particles_resting = 0;
 float gaussian[PARTICLE_SIZE];
 bool cached = false;
 
@@ -25,9 +26,15 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
         float y = particles[i*3+1];
         float z = particles[i*3+2];
 
+        // movement noise
         x += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
+        //y += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
         z += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
-        y -= (float)(rand() % 8) / 32.0f;
+
+        const float accel_div = 8.0f;
+        x += ax / accel_div;
+        y += ay / accel_div;
+        z += az / accel_div;
 
         // boundaries
         if(x > 7) x = 0;
@@ -37,7 +44,9 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
         if(z < 0) z = 7;
 
         if(y > 7) y = 0;
+        if(y < 0) y = 7;
 
+        /*
         int hx = (int)x;
         int hz = (int)z;
         if(y < 0 || y <= heightmap[hx][hz]) {
@@ -45,8 +54,10 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
                 heightmap[hx][hz]++;
             y = 7;
         }
+        */
 
         // snow flow
+        /*
         uint8_t neighbors[4];
         for(int y=0; y < 8; y++) {
             for(int x=0; x < 8; x++) {
@@ -84,6 +95,7 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
                 }
             }
         }
+        */
 
         // update
         particles[i*3] = x;
