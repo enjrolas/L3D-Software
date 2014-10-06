@@ -38,9 +38,11 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
 
         if(y > 7) y = 0;
 
-        if(y < 0) {
-            if(heightmap[(int)x][(int)z] < 7)
-                heightmap[(int)x][(int)z]++;
+        int hx = (int)x;
+        int hz = (int)z;
+        if(y < 0 || y <= heightmap[hx][hz]) {
+            if(heightmap[hx][hz] < 7)
+                heightmap[hx][hz]++;
             y = 7;
         }
 
