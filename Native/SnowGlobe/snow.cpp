@@ -152,9 +152,14 @@ void render_particles(float* particles, int count) {
     for(int z=0; z < 8; z++) {
         for(int x=0; x < 8; x++) {
             for(int y=0; y < heightmap[x][z]; y++) {
+                /*
                 stroke.red = c_offset + (7-x)*(c_range/8);
                 stroke.green = c_offset + (7-y)*(c_range/8);
                 stroke.blue = c_offset + (7-z)*(c_range/8);
+                */
+                stroke.red = 0;
+                stroke.green = 0;
+                stroke.blue = 64;
 
                 setPixel(x, y, z, &stroke);
             }
