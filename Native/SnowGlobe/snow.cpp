@@ -11,15 +11,11 @@ color color_snow = { 200, 200, 200 };
 color color_snowdrift = { 50, 50, 50 };
 color stroke = { 200, 200, 200 };
 
-vector wind = { 0, 0, 0 };
-
 const uint8_t profile_tree[5] = { 2, 2, 4, 6, 6 };
 const uint8_t profile_snow[5] = { 0, 4, 6, 0, 0 };
 
 #define PARTICLE_SIZE 4
 int particles_resting = 0;
-float gaussian[PARTICLE_SIZE];
-bool cached = false;
 
 uint8_t heightmap[8][8];
 uint32_t t = 0;
@@ -130,18 +126,6 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
 
 void render_particles(float* particles, int count) {
     /*
-    if(!cached) {
-        float mu = -2; // moves gaussian center
-        float sig = 4; // scales gaussian width (bigger values -> thinner gaussian)
-
-        float scale = 1.0 / exp(-pow(0-mu, 2) / 2.0 * pow(sig, 2)); // scale factor to ensure curve is 1.0 at x = 0
-        for(int x=0; x < PARTICLE_SIZE; x++) {
-            gaussian[x] = exp(-pow(x-mu, 2) / 2.0 * pow(sig, 2));
-        }
-
-        cached = true;
-    }
-
     for(int i=0; i < count; i++) {
         float px = particles[i*3];
         float py = particles[i*3+1];
@@ -171,7 +155,7 @@ void render_particles(float* particles, int count) {
     */
 }
 
-void snow_drifts(float amt) {
+void render_snow_drifts() {
     // snow on ground
     for(int z=0; z < 8; z++) {
         for(int x=0; x < 8; x++) {
@@ -203,7 +187,7 @@ void snow_drifts(float amt) {
     }
 }
 
-void clear_particles(float* particles, int count) {
+void render_background() {
     for(int z=0; z < 8; z++) {
         for(int y=0; y < 8; y++) {
             for(int x=0; x < 8; x++) {
@@ -242,6 +226,4 @@ void clear_particles(float* particles, int count) {
             }
         }
     }
-
-    snow_drifts(1.0);
 }

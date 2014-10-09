@@ -40,6 +40,8 @@ uint8_t right_height = building_heights[1];
 
 color body_color = { 3, 3, 2 };
 
+float turbulence = 0;
+
 #define PRINTF_BUFFER_SIZE 128
 void Serial_printf(const char* fmt, ...) {
     char buff[PRINTF_BUFFER_SIZE];
@@ -80,35 +82,26 @@ void render_image(uint8_t* image, int xoff, int yoff, int depth) {
     }
 }
 
-void building_body(int xoff, int height, color* c) {
-    for(int depth=BUILDING_DEPTH-1; depth >= 0; depth--) {
-        int roof_height = height + BUILDING_DEPTH - depth;
-        
-        // fill in
-        for(int y=0; y < roof_height; y++) {
-            for(int x=0; x < 8; x++) {
-                setPixel(xoff + x, y, depth, c);
-            }
-        }
-
-        // clear
-        for(int y=roof_height; y < 8; y++) {
-            for(int x=0; x < 8; x++) {
-                setPixel(xoff + x, y, depth, &color_dark);
-            }
-        }
-    }
-}
-
 void loop() {
     // read accelerometer
     float accel_x = (float)(analogRead(PIN_X) - 2048) / 2048.0f;
     float accel_y = -(float)(analogRead(PIN_Y) - 2048) / 2048.0f;
     float accel_z = (float)(analogRead(PIN_Z) - 2048) / 2048.0f;
+    
+    float magnitude = sqrt(pow(accel_x, 2) + pow(accel_y, 2) + pow(accel_z, 2));
 
-    clear_particles(particles, NUM_PARTICLES);
-    update_particles(particles, NUM_PARTICLES, accel_x, accel_y, accel_z);
-    render_particles(particles, NUM_PARTICLES);
+    render_background();
+
+    if(magnitude > 0.22)
+        turbulence += magnitude;
+
+    if(turbulence < 0.1)
+        render_snow_drifts();
+    else
+        turbulence -= 0.01;
+
+    /* update_particles(particles, NUM_PARTICLES, accel_x, accel_y, accel_z);
+    render_particles(particles, NUM_PARTICLES);*/
     cube_update();
 }
 
