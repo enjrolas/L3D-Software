@@ -3,11 +3,13 @@
 #include "math.h"
 #include "colors.h"
 #include "cube.h"
+#include "util.h"
 #include "smear.h"
 
 #include "snow.h"
 
 #define NUM_SNOWFLAKES 100
+#define AIR_FRICTION 0.8
 
 color color_snow = { 200, 200, 200 };
 color stroke = { 200, 200, 200 };
@@ -88,6 +90,40 @@ void snowstorm() {
     }
 
     snowed = false;
+}
+
+void flurry(float severity) {
+    for(unsigned int i=0; i < snowcount; i++) {
+        snowflake* flake = snow[i];
+        
+        flake->vx = frand(-severity, severity);
+        flake->vy = frand(-severity, severity);
+        flake->vz = frand(-severity, severity);
+    }
+}
+
+void update_snow() {
+    for(unsigned int i=0; i < snowcount; i++) {
+        snowflake* flake = snow[i];
+
+        // air friction
+        flake->vx *= AIR_FRICTION;
+        flake->vy *= AIR_FRICTION;
+        flake->vz *= AIR_FRICTION;
+
+        // movement
+        flake->x += flake->vx;
+        flake->y += flake->vy;
+        flake->z += flake->vz;
+
+        // boundaries
+        if(flake->x < 0) flake->x = 7;
+        if(flake->x > 7) flake->x = 0;
+        if(flake->y < 0) flake->y = 7;
+        if(flake->y > 7) flake->y = 0;
+        if(flake->z < 0) flake->z = 7;
+        if(flake->z > 7) flake->z = 0;
+    }
 }
 
 void render_snow() {
