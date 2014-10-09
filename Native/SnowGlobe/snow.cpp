@@ -126,6 +126,7 @@ void update_particles(float* particles, int count, float ax, float ay, float az)
 }
 
 void render_particles(float* particles, int count) {
+    /*
     if(!cached) {
         float mu = -2; // moves gaussian center
         float sig = 4; // scales gaussian width (bigger values -> thinner gaussian)
@@ -145,18 +146,15 @@ void render_particles(float* particles, int count) {
 
         setPixel((int)px, (int)py, (int)pz, &color_snow);
     }
+    */
 
+    /*
     const int c_range = 32;
     const int c_offset = 4;
 
     for(int z=0; z < 8; z++) {
         for(int x=0; x < 8; x++) {
             for(int y=0; y < heightmap[x][z]; y++) {
-                /*
-                stroke.red = c_offset + (7-x)*(c_range/8);
-                stroke.green = c_offset + (7-y)*(c_range/8);
-                stroke.blue = c_offset + (7-z)*(c_range/8);
-                */
                 stroke.red = 0;
                 stroke.green = 0;
                 stroke.blue = 64;
@@ -167,6 +165,7 @@ void render_particles(float* particles, int count) {
     }
 
     t++;
+    */
 }
 
 void clear_particles(float* particles, int count) {
@@ -174,6 +173,39 @@ void clear_particles(float* particles, int count) {
         for(int y=0; y < 8; y++) {
             for(int x=0; x < 8; x++) {
                 setPixel(x, y, z, &color_dark);
+            }
+        }
+    }
+
+    { // tree
+        stroke.red = 0;
+        stroke.green = 200;
+        stroke.blue = 0;
+
+        // leaves
+        const uint8_t tree_profile[5] = { 2, 2, 4, 6, 6 };
+
+        for(int i=0; i < 5; i++) {
+            uint8_t p = tree_profile[i];
+            uint8_t offset = 4 - p / 2;
+
+            for(int tz=0; tz < p; tz++) {
+                for(int tx=0; tx < p; tx++) {
+                    setPixel(tx + offset, 7-i, tz + offset, &stroke);
+                }
+            }
+        }
+
+        // trunk
+        stroke.red = 239;
+        stroke.green = 69;
+        stroke.blue = 19;
+
+        for(int y=0; y < 3; y++) {
+            for(int z=3; z <= 4; z++) {
+                for(int x=3; x <= 4; x++) {
+                    setPixel(x, y, z, &stroke);
+                }
             }
         }
     }
