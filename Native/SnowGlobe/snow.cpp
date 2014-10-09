@@ -7,155 +7,56 @@
 
 #include "snow.h"
 
+#define NUM_SNOWFLAKES 100
+
 color color_snow = { 200, 200, 200 };
-color color_snowdrift = { 50, 50, 50 };
 color stroke = { 200, 200, 200 };
 
 const uint8_t profile_tree[5] = { 2, 2, 4, 6, 6 };
 const uint8_t profile_snow[5] = { 0, 4, 6, 0, 0 };
 
-#define PARTICLE_SIZE 4
-int particles_resting = 0;
-
-uint8_t heightmap[8][8];
 uint32_t t = 0;
 
-void update_particles(float* particles, int count, float ax, float ay, float az) {
-    const double timescale = 128.0;
-    for(int z=0; z < 8; z++) {
-        for(int x=0; x < 8; x++) {
-            //heightmap[x][z] = (int)(3.0*exp(-(pow(x-4, 2)/sig+pow(z-4, 2)/sig)));
-            double cx = 32.0 * cos(t/timescale) + 8;
-            double cz = 32.0 * sin(t/timescale) + 12;
+typedef struct {
+    float x, y, z;
+    float vx, vy, vz;
+    float home_x, home_y, home_z;
+} snowflake;
 
-            heightmap[x][z] = (int)(1.5*(1+sin(3.14*sqrt(pow(x-cx, 2)+pow(z-cz, 2))/8.0)));
-        }
-    }
+snowflake* snow[NUM_SNOWFLAKES];
+unsigned int snowcount = 0;
+bool snowed = false;
 
-    for(int i=0; i < count; i++) {
-        float x = particles[i*3];
-        float y = particles[i*3+1];
-        float z = particles[i*3+2];
+void place_snow(float x, float y, float z) {
+    if(snowcount < NUM_SNOWFLAKES) {
+        snowflake* flake = (snowflake*)calloc(1, sizeof(snowflake));
+        
+        flake->x = x;
+        flake->y = y;
+        flake->z = z;
 
-        // movement noise
-        x += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
-        //y += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
-        z += (float)(rand() % 8) / 32.0f - 4.0f / 32.0f;
+        flake->home_x = x;
+        flake->home_y = y;
+        flake->home_z = z;
 
-        const float accel_div = 3.0f;
-        x += ax / accel_div;
-        y += ay / accel_div;
-        z += az / accel_div;
-
-        for(int j=0; j < count; j++) {
-            if(i != j) {
-                float bx = particles[j*3];
-                float by = particles[j*3+1];
-                float bz = particles[j*3+2];
-
-                if(abs(x-bx)+abs(y-by)+abs(z-bz) < 0.5) {
-                    x += rand() % 3 - 1;
-                    y += rand() % 3 - 1;
-                    z += rand() % 3 - 1;
-                }
-            }
-        }
-
-        // boundaries
-        if(x > 7) x = 7;
-        if(x < 0) x = 0;
-
-        if(z > 7) z = 7;
-        if(z < 0) z = 0;
-
-        if(y > 7) y = 7;
-        if(y < 0) y = 0;
-
-        int hx = (int)x;
-        int hz = (int)z;
-        if(y < heightmap[hx][hz])
-            y = heightmap[hx][hz];
-
-        // snow flow
-        /*
-        uint8_t neighbors[4];
-        for(int y=0; y < 8; y++) {
-            for(int x=0; x < 8; x++) {
-                neighbors[0] = heightmap[(x-1)%8][y%8];
-                neighbors[1] = heightmap[x%8][(y-1)%8];
-                neighbors[2] = heightmap[(x+1)%8][y%8];
-                neighbors[3] = heightmap[x%8][(y+1)%8];
-
-                int min_i = 0;
-                int min = neighbors[0];
-                for(int i=1; i < 4; i++) {
-                    if(neighbors[i] < min) {
-                        min = neighbors[i];
-                        min_i = i;
-                    }
-                }
-
-                if(min < heightmap[x][y]-1) {
-                    heightmap[x][y]--;
-
-                    switch(min_i) {
-                        case 0:
-                            heightmap[(x-1)%8][y%8]++;
-                            break;
-                        case 1:
-                            heightmap[x%8][(y-1)%8]++;
-                            break;
-                        case 2:
-                            heightmap[(x+1)%8][y%8]++;
-                            break;
-                        case 3:
-                            heightmap[x%8][(y+1)%8]++;
-                            break;
-                    }
-                }
-            }
-        }
-        */
-
-        // update
-        particles[i*3] = x;
-        particles[i*3+1] = y;
-        particles[i*3+2] = z;
+        snow[snowcount] = flake;
+        snowcount++;
     }
 }
 
-void render_particles(float* particles, int count) {
-    /*
-    for(int i=0; i < count; i++) {
-        float px = particles[i*3];
-        float py = particles[i*3+1];
-        float pz = particles[i*3+2];
-
-        setPixel((int)px, (int)py, (int)pz, &color_snow);
-    }
-    */
-
-    /*
-    const int c_range = 32;
-    const int c_offset = 4;
-
-    for(int z=0; z < 8; z++) {
-        for(int x=0; x < 8; x++) {
-            for(int y=0; y < heightmap[x][z]; y++) {
-                stroke.red = 0;
-                stroke.green = 0;
-                stroke.blue = 64;
-
-                setPixel(x, y, z, &stroke);
-            }
+void snowstorm() {
+    if(snowed) {
+        // just move the snow back to where it started
+        // TODO some kind of nice lerp?
+        for(unsigned int i=0; i < snowcount; i++) {
+            snow[i]->x = snow[i]->home_x;
+            snow[i]->y = snow[i]->home_y;
+            snow[i]->z = snow[i]->home_z;
         }
+
+        return;
     }
 
-    t++;
-    */
-}
-
-void render_snow_drifts() {
     // snow on ground
     for(int z=0; z < 8; z++) {
         for(int x=0; x < 8; x++) {
@@ -163,7 +64,7 @@ void render_snow_drifts() {
                 // skip the tree trunk
                 continue;
 
-            setPixel(x, 0, z, &color_snow);
+            place_snow(x, 0, z);
         }
     }
 
@@ -175,15 +76,24 @@ void render_snow_drifts() {
             uint8_t offset = 4 - p / 2;
             
             for(int sx=0; sx < p; sx++) {
-                setPixel(sx + offset, 7-i, offset, &color_snow);
-                setPixel(sx + offset, 7-i, 7 - offset, &color_snow);
+                place_snow(sx + offset, 7-i, offset);
+                place_snow(sx + offset, 7-i, 7 - offset);
             }
 
             for(int sz=0; sz < p; sz++) {
-                setPixel(offset, 7-i, sz + offset, &color_snow);
-                setPixel(7 - offset, 7-i, sz + offset, &color_snow);
+                place_snow(offset, 7-i, sz + offset);
+                place_snow(7 - offset, 7-i, sz + offset);
             }
         }
+    }
+
+    snowed = false;
+}
+
+void render_snow() {
+    for(unsigned int i=0; i < snowcount; i++) {
+        snowflake* flake = snow[i];
+        setPixel((int)flake->x, (int)flake->y, (int)flake->z, &color_snow);
     }
 }
 

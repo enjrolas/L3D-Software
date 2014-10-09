@@ -15,29 +15,6 @@ SYSTEM_MODE(SEMI_AUTOMATIC)
 #define PIN_Y 15
 #define PIN_Z 13
 
-#define NUM_BUILDINGS 3
-#define BUILDING_DEPTH 2
-
-#define NUM_PARTICLES 16
-
-float particles[NUM_PARTICLES*3];
-
-vector accel = { 0, 0, 0 };
-
-// TODO rename stroke to mimic Processing
-color c = { 128, 128, 128 };
-
-int timer, ptimer;
-int streetpos = 0;
-
-// TODO vary building width
-uint8_t* street[NUM_BUILDINGS] = { image_low, image_tall, image_overhang };
-uint8_t building_heights[NUM_BUILDINGS] = { 3, 6, 6 };
-uint8_t* left_building = street[0];
-uint8_t* right_building = street[1];
-uint8_t left_height = building_heights[0];
-uint8_t right_height = building_heights[1];
-
 color body_color = { 3, 3, 2 };
 
 float turbulence = 0;
@@ -57,29 +34,7 @@ void setup() {
 
     Serial.begin(115200);
 
-    for(int i=0; i<NUM_PARTICLES; i++) {
-        particles[i*3] = rand()%8;
-        particles[i*3+1] = rand()%8;
-        particles[i*3+2] = rand()%8;
-    }
-}
-
-void render_image(uint8_t* image, int xoff, int yoff, int depth) {
-    // TODO don't try to render offscreen
-    for(int y=0; y < 8; y++) {
-        for(int x=0; x < 8; x++) {
-            int i = (y*8+x)*3;
-
-            c.red = image[i];
-            c.green = image[i+1];
-            c.blue = image[i+2];
-
-            int ledx = xoff + x;
-            int ledy = 7 - (yoff + y);
-
-            setPixel(ledx, ledy, depth, &c);
-        }
-    }
+    snowstorm();
 }
 
 void loop() {
@@ -95,13 +50,14 @@ void loop() {
     if(magnitude > 0.22)
         turbulence += magnitude;
 
+    render_snow();
+
+    /*
     if(turbulence < 0.1)
-        render_snow_drifts();
     else
         turbulence -= 0.01;
+    */
 
-    /* update_particles(particles, NUM_PARTICLES, accel_x, accel_y, accel_z);
-    render_particles(particles, NUM_PARTICLES);*/
     cube_update();
 }
 
