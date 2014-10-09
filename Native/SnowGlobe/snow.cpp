@@ -11,6 +11,7 @@
 #define NUM_SNOWFLAKES 100
 #define GRAVITY_FACTOR 0.05
 #define AIR_FRICTION 0.8
+#define HOMING_LIKELIHOOD 2
 
 color color_snow = { 200, 200, 200 };
 color stroke = { 200, 200, 200 };
@@ -21,6 +22,7 @@ const uint8_t profile_snow[5] = { 0, 4, 6, 0, 0 };
 uint32_t t = 0;
 
 typedef struct {
+    bool stuck;
     float x, y, z;
     float vx, vy, vz;
     float home_x, home_y, home_z;
@@ -29,6 +31,8 @@ typedef struct {
 snowflake* snow[NUM_SNOWFLAKES];
 unsigned int snowcount = 0;
 bool snowed = false;
+
+vector cube_velocity;
 
 void place_snow(float x, float y, float z) {
     if(snowcount < NUM_SNOWFLAKES) {
@@ -41,6 +45,8 @@ void place_snow(float x, float y, float z) {
         flake->home_x = x;
         flake->home_y = y;
         flake->home_z = z;
+
+        flake->stuck = true;
 
         snow[snowcount] = flake;
         snowcount++;
@@ -93,42 +99,64 @@ void snowstorm() {
     snowed = false;
 }
 
-void flurry(float severity) {
+void flurry(float severity, float strength) {
     for(unsigned int i=0; i < snowcount; i++) {
         snowflake* flake = snow[i];
         
-        flake->vx = frand(-severity, severity);
-        flake->vy = frand(-severity, severity);
-        flake->vz = frand(-severity, severity);
+        if(rand() % 100 < (100.0 * severity)) {
+            flake->stuck = false;
+
+            flake->vx = frand(-strength, strength);
+            flake->vy = frand(0, strength);
+            flake->vz = frand(-strength, strength);
+        }
     }
 }
 
 void update_snow(float ax, float ay, float az) {
+    cube_velocity.x += ax * GRAVITY_FACTOR;
+    cube_velocity.y += ay * GRAVITY_FACTOR;
+    cube_velocity.z += az * GRAVITY_FACTOR;
+
     for(unsigned int i=0; i < snowcount; i++) {
         snowflake* flake = snow[i];
 
-        // gravity
-        flake->vx += ax * GRAVITY_FACTOR;
-        flake->vy += ay * GRAVITY_FACTOR;
-        flake->vz += az * GRAVITY_FACTOR;
+        if(!flake->stuck) {
+            if(rand() % 100 < HOMING_LIKELIHOOD) {
+                flake->x = flake->home_x;
+                flake->y = flake->home_y;
+                flake->z = flake->home_z;
 
-        // air friction
-        flake->vx *= AIR_FRICTION;
-        flake->vy *= AIR_FRICTION;
-        flake->vz *= AIR_FRICTION;
-        
-        // movement
-        flake->x += flake->vx;
-        flake->y += flake->vy;
-        flake->z += flake->vz;
+                flake->vx = 0;
+                flake->vy = 0;
+                flake->vz = 0;
 
-        // boundaries
-        if(flake->x < 0) flake->x = 7;
-        if(flake->x > 7) flake->x = 0;
-        if(flake->y < 0) flake->y = 7;
-        if(flake->y > 7) flake->y = 0;
-        if(flake->z < 0) flake->z = 7;
-        if(flake->z > 7) flake->z = 0;
+                flake->stuck = true;
+            } else {
+                // gravity
+                flake->vx += ax * GRAVITY_FACTOR;
+                flake->vy += ay * GRAVITY_FACTOR;
+                flake->vz += az * GRAVITY_FACTOR;
+
+                // air friction
+                flake->vx *= AIR_FRICTION;
+                flake->vy *= AIR_FRICTION;
+                flake->vz *= AIR_FRICTION;
+
+                // movement
+                flake->x += flake->vx;
+                flake->y += flake->vy;
+                flake->z += flake->vz;
+
+                // boundaries
+                if(flake->x < 0) flake->x = 7;
+                if(flake->x > 7) flake->x = 0;
+                if(flake->y < 0) flake->y = 7;
+                if(flake->y > 7) flake->y = 0;
+                if(flake->z < 0) flake->z = 7;
+                if(flake->z > 7) flake->z = 0;
+            }
+        }
     }
 }
 

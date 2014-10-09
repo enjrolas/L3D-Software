@@ -5,7 +5,7 @@ typedef struct {
     float x, y, z;
 } vector;
 
-void flurry(float severity);
+void flurry(float severity, float strength);
 void snowstorm(void);
 void render_snow(void);
 void render_background(void);

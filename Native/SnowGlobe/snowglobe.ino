@@ -43,7 +43,7 @@ void loop() {
     float accel_y = -(float)(analogRead(PIN_Y) - 2048) / 2048.0f;
     float accel_z = (float)(analogRead(PIN_Z) - 2048) / 2048.0f;
     
-    float magnitude = sqrt(pow(accel_x, 2) + pow(accel_y, 2) + pow(accel_z, 2));
+    float biased_magnitude = sqrt(pow(accel_x, 2) + pow(accel_z, 2)) + accel_y;
 
     update_snow(accel_x, accel_y, accel_z);
 
@@ -51,16 +51,13 @@ void loop() {
 
     render_background();
 
-    if(magnitude > 0.21)
-        turbulence += magnitude;
+    Serial.println(biased_magnitude);
+    if(biased_magnitude > -0.06) {
+        Serial.println(biased_magnitude);
+        flurry(0.1, 0.02);
+    }
 
     render_snow();
-
-    if(turbulence > 0.1) {
-        Serial.println(turbulence);
-        flurry(0.05);
-        turbulence -= 0.01;
-    }
 
     cube_update();
 }
