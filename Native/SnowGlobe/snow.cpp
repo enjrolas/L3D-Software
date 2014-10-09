@@ -9,6 +9,7 @@
 #include "snow.h"
 
 #define NUM_SNOWFLAKES 100
+#define GRAVITY_FACTOR 0.05
 #define AIR_FRICTION 0.8
 
 color color_snow = { 200, 200, 200 };
@@ -102,15 +103,20 @@ void flurry(float severity) {
     }
 }
 
-void update_snow() {
+void update_snow(float ax, float ay, float az) {
     for(unsigned int i=0; i < snowcount; i++) {
         snowflake* flake = snow[i];
+
+        // gravity
+        flake->vx += ax * GRAVITY_FACTOR;
+        flake->vy += ay * GRAVITY_FACTOR;
+        flake->vz += az * GRAVITY_FACTOR;
 
         // air friction
         flake->vx *= AIR_FRICTION;
         flake->vy *= AIR_FRICTION;
         flake->vz *= AIR_FRICTION;
-
+        
         // movement
         flake->x += flake->vx;
         flake->y += flake->vy;

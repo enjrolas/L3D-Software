@@ -45,20 +45,21 @@ void loop() {
     
     float magnitude = sqrt(pow(accel_x, 2) + pow(accel_y, 2) + pow(accel_z, 2));
 
-    update_snow();
+    update_snow(accel_x, accel_y, accel_z);
 
     // RENDERING
 
     render_background();
 
-    if(magnitude > 0.23)
+    if(magnitude > 0.21)
         turbulence += magnitude;
 
     render_snow();
 
     if(turbulence > 0.1) {
         Serial.println(turbulence);
-        flurry(0.001);
+        flurry(0.05);
+        turbulence -= 0.01;
     }
 
     cube_update();

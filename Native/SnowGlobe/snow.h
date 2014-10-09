@@ -10,6 +10,6 @@ void snowstorm(void);
 void render_snow(void);
 void render_background(void);
 
-void update_snow(void);
+void update_snow(float ax, float ay, float az);
 
 #endif
