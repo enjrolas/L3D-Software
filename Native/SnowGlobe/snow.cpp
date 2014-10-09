@@ -13,6 +13,9 @@ color stroke = { 200, 200, 200 };
 
 vector wind = { 0, 0, 0 };
 
+const uint8_t profile_tree[5] = { 2, 2, 4, 6, 6 };
+const uint8_t profile_snow[5] = { 0, 4, 6, 0, 0 };
+
 #define PARTICLE_SIZE 4
 int particles_resting = 0;
 float gaussian[PARTICLE_SIZE];
@@ -168,6 +171,38 @@ void render_particles(float* particles, int count) {
     */
 }
 
+void snow_drifts(float amt) {
+    // snow on ground
+    for(int z=0; z < 8; z++) {
+        for(int x=0; x < 8; x++) {
+            if(x >= 3 && x <= 4 && z >= 3 && z <= 4)
+                // skip the tree trunk
+                continue;
+
+            setPixel(x, 0, z, &color_snow);
+        }
+    }
+
+    // snow on leaves
+    for(int i=0; i < 5; i++) {
+        uint8_t p = profile_snow[i];
+        
+        if(p > 0) {
+            uint8_t offset = 4 - p / 2;
+            
+            for(int sx=0; sx < p; sx++) {
+                setPixel(sx + offset, 7-i, offset, &color_snow);
+                setPixel(sx + offset, 7-i, 7 - offset, &color_snow);
+            }
+
+            for(int sz=0; sz < p; sz++) {
+                setPixel(offset, 7-i, sz + offset, &color_snow);
+                setPixel(7 - offset, 7-i, sz + offset, &color_snow);
+            }
+        }
+    }
+}
+
 void clear_particles(float* particles, int count) {
     for(int z=0; z < 8; z++) {
         for(int y=0; y < 8; y++) {
@@ -183,10 +218,8 @@ void clear_particles(float* particles, int count) {
         stroke.blue = 0;
 
         // leaves
-        const uint8_t tree_profile[5] = { 2, 2, 4, 6, 6 };
-
         for(int i=0; i < 5; i++) {
-            uint8_t p = tree_profile[i];
+            uint8_t p = profile_tree[i];
             uint8_t offset = 4 - p / 2;
 
             for(int tz=0; tz < p; tz++) {
@@ -209,4 +242,6 @@ void clear_particles(float* particles, int count) {
             }
         }
     }
+
+    snow_drifts(1.0);
 }
