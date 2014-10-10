@@ -76,3 +76,7 @@ Aaaand you’re good to go!
 ![flash program](http://cl.ly/image/3d18301k1N3E/Screen%20Shot%202014-10-01%20at%201.01.49%20PM.png)
 
 The color LED on your spark should quickly turn purple and begin flashing to show that the program is loading.  It usually takes about 20 seconds to load a new program, although we’ve seen it take up to a minute when we’re working outside of the US.
+
+
+------
+

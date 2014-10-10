@@ -8,6 +8,8 @@ import com.leapmotion.leap.Vector;
 import com.leapmotion.leap.processing.LeapMotion;
 
 LeapMotion leapMotion;
+String ipAddress;
+int port=6666;
 
 color [][][] cube;
 int side=8;
@@ -24,13 +26,17 @@ PImage logo;
 void setup()
 {
   logo=loadImage("logo.png");
-  //initMulticast();
+ // initMulticast();
   cube=new color[side][side][side];
   print(center);
   size(displayWidth, displayHeight, P3D);
   cam = new PeasyCam(this, 3000);
   cam.setMinimumDistance(500);
   cam.setMaximumDistance(10000);
+  //loadCores("99545512f1ba12068e3678cd079cd9dc26855863");
+  //ipAddress=getVar("delilah", "IPAddress");  
+  ipAddress="192.168.254.189";
+  initDirectStreaming(ipAddress, port);
   initBubbles();
   // stroke(255,20);
   //noStroke();

@@ -3,7 +3,7 @@
 import hypermedia.net.*;
 UDP udp;  // define the UDP object
 String ip       = "224.0.0.1";  // the remote IP address
-int port        = 6000;    // the destination port
+int port        = 6666;    // the destination port
 int multicastPixels=170;
 
 void initMulticast()
