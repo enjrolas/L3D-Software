@@ -96,7 +96,7 @@ void snowstorm() {
         }
     }
 
-    snowed = false;
+    snowed = true;
 }
 
 void flurry(float severity, float strength) {
