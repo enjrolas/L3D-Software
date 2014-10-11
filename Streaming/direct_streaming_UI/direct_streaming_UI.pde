@@ -13,8 +13,7 @@ PVector incVector=new PVector(inc,0,0);
 int numStates=9;
 Point[] trail;
 color spotCol=color(0,255,255);
-String ipAddress;
-int port=6666;
+String coreName="";
 void setup()
 {
   spot=new Bubble(0,0,0,1,spotCol);
@@ -24,21 +23,18 @@ void setup()
   logo=loadImage("logo.png");
   cube=new color[side][side][side];
   print(center);
-  loadCores("99545512f1ba12068e3678cd079cd9dc26855863");
   println("getting IP address...");
-  ipAddress=getVar("deborah", "IPAddress");  
-  //ipAddress="192.168.254.189";
   size(displayWidth, displayHeight, P3D);
   cam = new PeasyCam(this, 6000);
   cam.setMinimumDistance(500);
   cam.setMaximumDistance(10000);
   cam.rotateX(PI/8);
   cam.rotateY(PI/8);
-//  initDirectStreaming(ipAddress, port);
-  initDirectStreaming(ipAddress);
+  initUI();
+  initDirectStreaming(coreName);
   frameRate(100);
+  println(getNames());
 }
-
 
 void draw()
 {
@@ -64,12 +60,14 @@ void draw()
       
 cam.beginHUD();
 image(logo,0,0);
-String []info={"L3D Cube door simulator",
-                "This program streams to any cube on the local network that's running the Listening program",
-                "This shows a simple door opening and closing",
-                "use the left and right arrow keys to open or close the door",
-                "streaming to "+ipAddress+" on port "+port,
+String []info={"L3D Cube direct streamer",
+                "This program finds all cubes associated with your spark access token,",
+                "and can selectively stream a visualization to any cube running the listener program on your local network.",
+                "To use it on your own cube, just enter your spark access token below",
+                "Now streaming to cube: "+coreName +" at IP address "+address+" on port "+port,
+                "select a core:",
 };
+cp5.draw();
 HUDText(info, new PVector(0,100,0));
 cam.endHUD();
       
@@ -196,84 +194,6 @@ void mouseClicked()
 }
 
 
-void frame()
-{
-
-}
-
-
-void line(Point p1, Point p2, color col) {
-
-  int i, dx, dy, dz, l, m, n, x_inc, y_inc, z_inc, err_1, err_2, dx2, dy2, dz2;
-  Point currentPoint=new Point(p1.x, p1.y, p1.z);
-  dx = p2.x - p1.x;
-  dy = p2.y - p1.y;
-  dz = p2.z - p1.z;
-  x_inc = (dx < 0) ? -1 : 1;
-  l = abs(dx);
-  y_inc = (dy < 0) ? -1 : 1;
-  m = abs(dy);
-  z_inc = (dz < 0) ? -1 : 1;
-  n = abs(dz);
-  dx2 = l << 1;
-  dy2 = m << 1;
-  dz2 = n << 1;
-
-  if ((l >= m) && (l >= n)) {
-    err_1 = dy2 - l;
-    err_2 = dz2 - l;
-    for (i = 0; i < l; i++) {
-      setVoxel(currentPoint, col);
-      if (err_1 > 0) {
-        currentPoint.y += y_inc;
-        err_1 -= dx2;
-      }
-      if (err_2 > 0) {
-        currentPoint.z += z_inc;
-        err_2 -= dx2;
-      }
-      err_1 += dy2;
-      err_2 += dz2;
-      currentPoint.x += x_inc;
-    }
-  } else if ((m >= l) && (m >= n)) {
-    err_1 = dx2 - m;
-    err_2 = dz2 - m;
-    for (i = 0; i < m; i++) {
-      setVoxel(currentPoint, col);
-      if (err_1 > 0) {
-        currentPoint.x += x_inc;
-        err_1 -= dy2;
-      }
-      if (err_2 > 0) {
-        currentPoint.z += z_inc;
-        err_2 -= dy2;
-      }
-      err_1 += dx2;
-      err_2 += dz2;
-      currentPoint.y += y_inc;
-    }
-  } else {
-    err_1 = dy2 - n;
-    err_2 = dx2 - n;
-    for (i = 0; i < n; i++) {
-      setVoxel(currentPoint, col);
-      if (err_1 > 0) {
-        currentPoint.y += y_inc;
-        err_1 -= dz2;
-      }
-      if (err_2 > 0) {
-        currentPoint.x += x_inc;
-        err_2 -= dz2;
-      }
-      err_1 += dy2;
-      err_2 += dx2;
-      currentPoint.z += z_inc;
-    }
-  }
-
-  setVoxel(currentPoint, col);
-}
 
 class Point {
   int x, y, z;

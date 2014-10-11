@@ -63,16 +63,16 @@ String getVar(String coreName, String varName)
   boolean varFound=false;
   for (int i=0;((i<myCores.size())&&(!varFound));i++)
   {
-    try{
-    JSONObject core=myCores.getJSONObject(i);
-    if (core.getString("name").equals(coreName))
     try {
-      return(core.getString(varName));
-    }
-    catch(Exception e) //variable name not found
-    {
-      return null;
-    }
+      JSONObject core=myCores.getJSONObject(i);
+      if (core.getString("name").equals(coreName))
+      try {
+        return(core.getString(varName));
+      }
+      catch(Exception e) //variable name not found
+      {
+        return null;
+      }
     }
     catch(Exception e)
     {
@@ -81,5 +81,32 @@ String getVar(String coreName, String varName)
   }
 
   return null;
+}
+
+String getAddress(String name)
+{
+  return getVar(name, "IPAddress");
+}
+
+String[] getNames()
+{
+  String[] names={};
+  for (int i=0;i<myCores.size();i++)  //loop through all the cores
+  {
+    try {  //make sure the thing in the list is actually a JSON object -- we had a failure where there were many things in the list that were null
+      JSONObject core=myCores.getJSONObject(i);
+      try {
+        names = append(names, core.getString("name"));  //add this core's name to the list
+      }
+      catch(Exception e) //variable name not found
+      {
+      }
+    }
+    catch(Exception e)
+    {
+      println("that wasn't a JSON object");
+    }
+  }
+  return names;
 }
 
