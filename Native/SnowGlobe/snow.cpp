@@ -8,31 +8,20 @@
 
 #include "snow.h"
 
-#define NUM_SNOWFLAKES 100
-#define GRAVITY_FACTOR 0.05
-#define AIR_FRICTION 0.8
-#define HOMING_LIKELIHOOD 2
+#define NUM_SNOWFLAKES      100     // # snowflakes to allocate memory for
+#define GRAVITY_FACTOR      0.05    // accelerometer multiplier
+#define AIR_FRICTION        0.8     // per-frame velocity multiplier
+#define HOMING_LIKELIHOOD   2       // if rand() % 100 < this then put particle back home
 
 color color_snow = { 200, 200, 200 };
 color stroke = { 200, 200, 200 };
 
-const uint8_t profile_tree[5] = { 2, 2, 4, 6, 6 };
-const uint8_t profile_snow[5] = { 0, 4, 6, 0, 0 };
-
-uint32_t t = 0;
-
-typedef struct {
-    bool stuck;
-    float x, y, z;
-    float vx, vy, vz;
-    float home_x, home_y, home_z;
-} snowflake;
+const uint8_t profile_tree[5] = { 2, 2, 4, 6, 6 }; // size of the squares making up the tree
+const uint8_t profile_snow[5] = { 0, 4, 6, 0, 0 }; // size of the snow rings for each tree level
 
 snowflake* snow[NUM_SNOWFLAKES];
-unsigned int snowcount = 0;
+unsigned int snowcount = 0; // # added snow particles
 bool snowed = false;
-
-vector cube_velocity;
 
 void place_snow(float x, float y, float z) {
     if(snowcount < NUM_SNOWFLAKES) {
@@ -42,10 +31,12 @@ void place_snow(float x, float y, float z) {
         flake->y = y;
         flake->z = z;
 
+        // home is where it was first placed
         flake->home_x = x;
         flake->home_y = y;
         flake->home_z = z;
 
+        // initially cannot move
         flake->stuck = true;
 
         snow[snowcount] = flake;
@@ -53,10 +44,11 @@ void place_snow(float x, float y, float z) {
     }
 }
 
+// puts a layer of snow on the scene
 void snowstorm() {
+    // if it snowed before then don't add more snow
+    // just move the snow back to where it started
     if(snowed) {
-        // just move the snow back to where it started
-        // TODO some kind of nice lerp?
         for(unsigned int i=0; i < snowcount; i++) {
             snow[i]->x = snow[i]->home_x;
             snow[i]->y = snow[i]->home_y;
@@ -82,6 +74,7 @@ void snowstorm() {
         uint8_t p = profile_snow[i];
         
         if(p > 0) {
+            // if there is somewhere on the tree for the snow to land
             uint8_t offset = 4 - p / 2;
             
             for(int sx=0; sx < p; sx++) {
@@ -99,6 +92,7 @@ void snowstorm() {
     snowed = true;
 }
 
+// randomize velocities for a fraction of the snowflakes
 void flurry(float severity, float strength) {
     for(unsigned int i=0; i < snowcount; i++) {
         snowflake* flake = snow[i];
@@ -113,16 +107,15 @@ void flurry(float severity, float strength) {
     }
 }
 
+// do physics for every snowflake
 void update_snow(float ax, float ay, float az) {
-    cube_velocity.x += ax * GRAVITY_FACTOR;
-    cube_velocity.y += ay * GRAVITY_FACTOR;
-    cube_velocity.z += az * GRAVITY_FACTOR;
-
     for(unsigned int i=0; i < snowcount; i++) {
         snowflake* flake = snow[i];
 
         if(!flake->stuck) {
             if(rand() % 100 < HOMING_LIKELIHOOD) {
+                // over time let the snow "settle" back down onto surfaces
+
                 flake->x = flake->home_x;
                 flake->y = flake->home_y;
                 flake->z = flake->home_z;
@@ -148,7 +141,7 @@ void update_snow(float ax, float ay, float az) {
                 flake->y += flake->vy;
                 flake->z += flake->vz;
 
-                // boundaries
+                // boundaries just wrap
                 if(flake->x < 0) flake->x = 7;
                 if(flake->x > 7) flake->x = 0;
                 if(flake->y < 0) flake->y = 7;
@@ -168,6 +161,7 @@ void render_snow() {
 }
 
 void render_background() {
+    // clear cube
     for(int z=0; z < 8; z++) {
         for(int y=0; y < 8; y++) {
             for(int x=0; x < 8; x++) {
