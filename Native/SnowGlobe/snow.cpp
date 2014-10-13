@@ -8,12 +8,14 @@
 
 #include "snow.h"
 
+#define WITH_TREE // enable tree
+
 #define NUM_SNOWFLAKES      100     // # snowflakes to allocate memory for
 #define GRAVITY_FACTOR      0.05    // accelerometer multiplier
 #define AIR_FRICTION        0.8     // per-frame velocity multiplier
 #define HOMING_LIKELIHOOD   2       // if rand() % 100 < this then put particle back home
 
-color color_snow = { 200, 200, 200 };
+color color_snow = { 54, 54, 54 };
 color stroke = { 200, 200, 200 };
 
 const uint8_t profile_tree[5] = { 2, 2, 4, 6, 6 }; // size of the squares making up the tree
@@ -177,7 +179,7 @@ void render_background() {
 #ifdef WITH_TREE
     { // tree
         stroke.red = 0;
-        stroke.green = 200;
+        stroke.green = 54;
         stroke.blue = 0;
 
         // leaves
@@ -193,9 +195,9 @@ void render_background() {
         }
 
         // trunk
-        stroke.red = 239;
-        stroke.green = 69;
-        stroke.blue = 19;
+        stroke.red = 239/4;
+        stroke.green = 69/4;
+        stroke.blue = 19/4;
 
         for(int y=0; y < 3; y++) {
             for(int z=3; z <= 4; z++) {
