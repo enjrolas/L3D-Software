@@ -168,6 +168,7 @@ void render_snow() {
     for(unsigned int i=0; i < snowcount; i++) {
         snowflake* flake = snow[i];
         setPixel((int)flake->x, (int)flake->y, (int)flake->z, &color_snow);
+        setPixel((int)flake->home_x, (int)flake->home_y, (int)flake->home_z, &color_snow);
     }
 }
 
