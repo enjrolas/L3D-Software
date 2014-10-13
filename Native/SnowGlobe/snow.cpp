@@ -61,14 +61,17 @@ void snowstorm() {
     // snow on ground
     for(int z=0; z < 8; z++) {
         for(int x=0; x < 8; x++) {
+#ifdef WITH_TREE
             if(x >= 3 && x <= 4 && z >= 3 && z <= 4)
                 // skip the tree trunk
                 continue;
+#endif
 
             place_snow(x, 0, z);
         }
     }
 
+#ifdef WITH_TREE
     // snow on leaves
     for(int i=0; i < 5; i++) {
         uint8_t p = profile_snow[i];
@@ -88,6 +91,7 @@ void snowstorm() {
             }
         }
     }
+#endif
 
     snowed = true;
 }
@@ -170,6 +174,7 @@ void render_background() {
         }
     }
 
+#ifdef WITH_TREE
     { // tree
         stroke.red = 0;
         stroke.green = 200;
@@ -200,4 +205,5 @@ void render_background() {
             }
         }
     }
+#endif
 }
