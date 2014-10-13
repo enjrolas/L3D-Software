@@ -8,9 +8,10 @@
 
 #include "snow.h"
 
-#define WITH_TREE // enable tree
+//#define WITH_TREE // enable tree
 
 #define NUM_SNOWFLAKES      100     // # snowflakes to allocate memory for
+#define MOVEABLE_PERCENT    30      // % snowflakes non-static
 #define GRAVITY_FACTOR      0.05    // accelerometer multiplier
 #define AIR_FRICTION        0.8     // per-frame velocity multiplier
 #define HOMING_LIKELIHOOD   2       // if rand() % 100 < this then put particle back home
@@ -39,7 +40,11 @@ void place_snow(float x, float y, float z) {
         flake->home_z = z;
 
         // initially cannot move
-        flake->stuck = true;
+        flake->flags = 1 << SNOW_STUCK;
+
+        // some never move
+        if(rand() % 100 >= MOVEABLE_PERCENT)
+            flake->flags |= 1 << SNOW_STATIC;
 
         snow[snowcount] = flake;
         snowcount++;
@@ -104,7 +109,7 @@ void flurry(float severity, float strength) {
         snowflake* flake = snow[i];
         
         if(rand() % 100 < (100.0 * severity)) {
-            flake->stuck = false;
+            flake->flags &= ~(1<<SNOW_STUCK);
 
             flake->vx = frand(-strength, strength);
             flake->vy = frand(0, strength);
@@ -118,7 +123,7 @@ void update_snow(float ax, float ay, float az) {
     for(unsigned int i=0; i < snowcount; i++) {
         snowflake* flake = snow[i];
 
-        if(!flake->stuck) {
+        if(((flake->flags & (1<<SNOW_STUCK)) == 0) && ((flake->flags & (1<<SNOW_STATIC)) == 0)) {
             if(rand() % 100 < HOMING_LIKELIHOOD) {
                 // over time let the snow "settle" back down onto surfaces
 
@@ -130,7 +135,7 @@ void update_snow(float ax, float ay, float az) {
                 flake->vy = 0;
                 flake->vz = 0;
 
-                flake->stuck = true;
+                flake->flags |= 1 << SNOW_STUCK;
             } else {
                 // gravity
                 flake->vx += ax * GRAVITY_FACTOR;
