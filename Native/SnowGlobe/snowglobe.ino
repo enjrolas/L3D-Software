@@ -7,7 +7,9 @@
 #include "cube.h"
 #include "snow.h"
 
-SYSTEM_MODE(SEMI_AUTOMATIC)
+bool tried_connecting = false;
+SYSTEM_MODE(SEMI_AUTOMATIC);
+#define INTERNET_SWITCH D2
 
 #define PIN_X 14
 #define PIN_Y 15
@@ -15,6 +17,9 @@ SYSTEM_MODE(SEMI_AUTOMATIC)
 
 void setup() {
     Serial.begin(115200);
+
+    pinMode(INTERNET_SWITCH, INPUT);
+
     cube_init();
 
     // initialize snowflakes
@@ -22,6 +27,12 @@ void setup() {
 }
 
 void loop() {
+    // connect to cloud if internet switch is set
+    if(digitalRead(INTERNET_SWITCH) && !tried_connecting) {
+        Spark.connect();
+        tried_connecting = true;
+    }
+
     // read accelerometer
     float accel_x = (float)(analogRead(PIN_X) - 2048) / 2048.0f;
     float accel_y = -(float)(analogRead(PIN_Y) - 2048) / 2048.0f;
