@@ -5,8 +5,13 @@ typedef struct {
     float x, y, z;
 } vector;
 
+enum {
+    SNOW_STATIC = 1 << 0, // never move
+    SNOW_STUCK  = 1 << 1  // don't move now
+};
+
 typedef struct {
-    bool stuck;
+    uint8_t flags;
     float x, y, z;
     float vx, vy, vz;
     float home_x, home_y, home_z;
