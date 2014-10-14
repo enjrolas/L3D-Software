@@ -8,7 +8,7 @@
 
 #include "snow.h"
 
-//#define WITH_TREE // enable tree
+#define WITH_TREE // enable tree
 
 #define NUM_SNOWFLAKES      100     // # snowflakes to allocate memory for
 #define MOVEABLE_PERCENT    30      // % snowflakes non-static
@@ -26,7 +26,7 @@ snowflake* snow[NUM_SNOWFLAKES];
 unsigned int snowcount = 0; // # added snow particles
 bool snowed = false;
 
-void place_snow(float x, float y, float z) {
+void place_snow(float x, float y, float z, bool thick) {
     if(snowcount < NUM_SNOWFLAKES) {
         snowflake* flake = (snowflake*)calloc(1, sizeof(snowflake));
         
@@ -45,6 +45,10 @@ void place_snow(float x, float y, float z) {
         // some never move
         if(rand() % 100 >= MOVEABLE_PERCENT)
             flake->flags |= 1 << SNOW_STATIC;
+
+        // thick snow doesn't disappear
+        if(thick)
+            flake->flags |= 1 << SNOW_THICK;
 
         snow[snowcount] = flake;
         snowcount++;
@@ -74,7 +78,7 @@ void snowstorm() {
                 continue;
 #endif
 
-            place_snow(x, 0, z);
+            place_snow(x, 0, z, true);
         }
     }
 
@@ -88,13 +92,13 @@ void snowstorm() {
             uint8_t offset = 4 - p / 2;
             
             for(int sx=0; sx < p; sx++) {
-                place_snow(sx + offset, 7-i, offset);
-                place_snow(sx + offset, 7-i, 7 - offset);
+                place_snow(sx + offset, 7-i, offset, false);
+                place_snow(sx + offset, 7-i, 7 - offset, false);
             }
 
             for(int sz=0; sz < p; sz++) {
-                place_snow(offset, 7-i, sz + offset);
-                place_snow(7 - offset, 7-i, sz + offset);
+                place_snow(offset, 7-i, sz + offset, false);
+                place_snow(7 - offset, 7-i, sz + offset, false);
             }
         }
     }
@@ -171,7 +175,9 @@ void render_snow() {
     for(unsigned int i=0; i < snowcount; i++) {
         snowflake* flake = snow[i];
         setPixel((int)flake->x, (int)flake->y, (int)flake->z, &color_snow);
-        setPixel((int)flake->home_x, (int)flake->home_y, (int)flake->home_z, &color_snow);
+
+        if(flake->flags & (1<<SNOW_THICK))
+            setPixel((int)flake->home_x, (int)flake->home_y, (int)flake->home_z, &color_snow);
     }
 }
 

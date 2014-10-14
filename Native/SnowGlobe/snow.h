@@ -7,7 +7,8 @@ typedef struct {
 
 enum {
     SNOW_STATIC = 1 << 0, // never move
-    SNOW_STUCK  = 1 << 1  // don't move now
+    SNOW_STUCK  = 1 << 1, // don't move now
+    SNOW_THICK  = 1 << 2  // always render particle at home position
 };
 
 typedef struct {
