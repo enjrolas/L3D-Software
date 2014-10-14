@@ -14,7 +14,7 @@
 #define MOVEABLE_PERCENT    30      // % snowflakes non-static
 #define GRAVITY_FACTOR      0.05    // accelerometer multiplier
 #define AIR_FRICTION        0.8     // per-frame velocity multiplier
-#define HOMING_LIKELIHOOD   2       // if rand() % 100 < this then put particle back home
+#define HOMING_LIKELIHOOD   1       // if rand() % 100 < this then put particle back home
 
 color color_snow = { 54, 54, 54 };
 color stroke = { 200, 200, 200 };
@@ -109,11 +109,14 @@ void flurry(float severity, float strength) {
         snowflake* flake = snow[i];
         
         if(rand() % 100 < (100.0 * severity)) {
-            flake->flags &= ~(1<<SNOW_STUCK);
+            if(flake->flags & (1<<SNOW_STUCK)) {
+                // if not already moving
+                flake->flags &= ~(1<<SNOW_STUCK);
 
-            flake->vx = frand(-strength, strength);
-            flake->vy = frand(0, strength);
-            flake->vz = frand(-strength, strength);
+                flake->vx = frand(-strength, strength);
+                flake->vy = frand(0, strength);
+                flake->vz = frand(-strength, strength);
+            }
         }
     }
 }
