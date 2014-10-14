@@ -30,7 +30,7 @@ void loop() {
     // favor movement normal to cube floor
     float biased_magnitude = sqrt(pow(accel_x, 2) + pow(accel_z, 2)) + accel_y;
 
-    if(biased_magnitude > -0.06)
+    if(biased_magnitude > -0.08)
         flurry(0.1, 0.02);
 
     update_snow(accel_x, accel_y, accel_z);
