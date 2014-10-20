@@ -23,6 +23,8 @@ kiss_fftr_cfg fft_cfg;
 kiss_fft_scalar *fft_in;
 kiss_fft_cpx *fft_out;
 
+uint8_t height[8][8];
+
 unsigned int sampleMic() {
     analogWrite(GAIN_CONTROL, 45); //put the gain right in the middle, for now
     return analogRead(MICROPHONE);
@@ -43,7 +45,7 @@ void setup() {
     pinMode(INTERNET_SWITCH, INPUT);
     pinMode(GAIN_CONTROL, OUTPUT);
 
-    fft_size = 128;
+    fft_size = 256;
     fft_cfg = kiss_fftr_alloc(fft_size, FALSE, NULL, NULL);
     fft_in = (kiss_fft_scalar*)malloc(fft_size * sizeof(kiss_fft_scalar));
     fft_out = (kiss_fft_cpx*)malloc(fft_size / 2 * sizeof(kiss_fft_cpx) + 1);
@@ -60,11 +62,20 @@ void loop() {
 
     updateFFT();
 
-    /*for(int z=0; z < 7; z++) {
+    for(int z=0; z < 7; z++) {
         for(int x=0; x < 7; x++) {
             height[z][x] = height[z+1][x];
         }
-    }*/
+    }
+
+    int xoff = analogRead(DIAL) >> 4;
+    int yoff = 2;
+    for(int x=0; x < 8; x++) {
+        int v = fft_out[(x + xoff)%(fft_size/2+1)].i + yoff;
+        v = (v > 8)? 8: v;
+        v = (v < 0)? 0: v;
+        height[7][x] = v;
+    }
 
     /*for(int i=0; i < fft_size; i++) {
         Serial.print(log_pwr_fft[i]);
@@ -81,16 +92,11 @@ void loop() {
     }
 
     color col = { 55, 55, 55 };
-    int xoff = analogRead(DIAL) >> 4;
-    int yoff = 2;
 
     for(int x=0;x<8;x++) {
         for(int z=0;z<8;z++) {
-            int v = fft_out[(x + xoff)%(fft_size/2+1)].i + yoff;
-            v = (v > 8)? 8: v;
-            v = (v < 0)? 0: v;
-
-            for(int y=0;y<v;y++) {
+            int h = height[z][x];
+            for(int y=0;y<h;y++) {
                 setPixel(x,y,z, &col);
             }
         }
