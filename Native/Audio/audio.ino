@@ -4,6 +4,7 @@
 
 #include "colors.h"
 #include "cube.h"
+#include "util.h"
 #include "kiss_fftr.h"
 
 bool tried_connecting = false;
@@ -48,18 +49,19 @@ void setup() {
     cube_init();
 }
 
-void palettize(color* col, int x) {
-    /*
-    col->red = 256*sin(M_PI * x / 32);
-    col->green = 256*sin(M_PI * x / 64);
-    col->blue = 256*sin(M_PI * x / 128);
-    */
+void palettize(color* col, float x) {
+    col->red = 16+64*sin(M_PI * x / 32);
+    col->green = 16+64*sin(M_PI * x / 64);
+    col->blue = 16+64*sin(M_PI * x / 128);
     
+    /*
     col->red = 256*sin(M_PI * x / 128);
     col->green = 256*sin(M_PI * x / 128);
     col->blue = 0;
+    */
 }
 
+uint32_t t = 0;
 void loop() {
     // connect to cloud if internet switch is set
     if(digitalRead(INTERNET_SWITCH) && !tried_connecting) {
@@ -109,13 +111,22 @@ void loop() {
                 }
                 h /= FFT_SIZE/64;
 
-                palettize(&col, h*32);
+                palettize(&col, 64*h + t);
+                
+                float d = sqrtf(powf(x-4, 2) + powf(z-4, 2)) / 7.f;
+                float factor = d * h;
+                col.red *= factor;
+                col.green *= factor;
+                col.blue *= factor;
+
                 setPixel(x, 0, z, &col);
 
                 count++;
             }
         }
     }
+
+    t++;
 
     cube_update();
 }
