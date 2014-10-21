@@ -18,23 +18,18 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 #define GAIN_CONTROL 11
 #define DIAL 10
 
-int fft_size;
+#define FFT_SIZE 256
 kiss_fftr_cfg fft_cfg;
 kiss_fft_scalar *fft_in;
 kiss_fft_cpx *fft_out;
 
 uint8_t height[8][8];
 
-unsigned int sampleMic() {
-    analogWrite(GAIN_CONTROL, 45); //put the gain right in the middle, for now
-    return analogRead(MICROPHONE);
-}
-
 void updateFFT() {
     kiss_fft_scalar pt;
 
-    for(int i=0; i < fft_size; i++) {
-        fft_in[i] = ((float)sampleMic())/4096.f;
+    for(int i=0; i < FFT_SIZE; i++) {
+        fft_in[i] = ((float)analogRead(MICROPHONE))/4096.f;
     }
 
     kiss_fftr(fft_cfg, fft_in, fft_out);
@@ -44,13 +39,25 @@ void setup() {
     Serial.begin(9600);
     pinMode(INTERNET_SWITCH, INPUT);
     pinMode(GAIN_CONTROL, OUTPUT);
+    analogWrite(GAIN_CONTROL, 45); //put the gain right in the middle, for now
 
-    fft_size = 128;
-    fft_cfg = kiss_fftr_alloc(fft_size, FALSE, NULL, NULL);
-    fft_in = (kiss_fft_scalar*)malloc(fft_size * sizeof(kiss_fft_scalar));
-    fft_out = (kiss_fft_cpx*)malloc(fft_size / 2 * sizeof(kiss_fft_cpx) + 1);
+    fft_cfg = kiss_fftr_alloc(FFT_SIZE, FALSE, NULL, NULL);
+    fft_in = (kiss_fft_scalar*)malloc(FFT_SIZE * sizeof(kiss_fft_scalar));
+    fft_out = (kiss_fft_cpx*)malloc(FFT_SIZE / 2 * sizeof(kiss_fft_cpx) + 1);
 
     cube_init();
+}
+
+void palettize(color* col, int x) {
+    /*
+    col->red = 256*sin(M_PI * x / 32);
+    col->green = 256*sin(M_PI * x / 64);
+    col->blue = 256*sin(M_PI * x / 128);
+    */
+    
+    col->red = 256*sin(M_PI * x / 128);
+    col->green = 256*sin(M_PI * x / 128);
+    col->blue = 0;
 }
 
 void loop() {
@@ -62,22 +69,25 @@ void loop() {
 
     updateFFT();
 
-    /*for(int i=0; i < fft_size; i++) {
+    /*for(int i=0; i < FFT_SIZE; i++) {
         Serial.print(log_pwr_fft[i]);
         Serial.print(",\t");
     }
     Serial.println();*/
 
-    for(int x=0;x<8;x++) {
-        for(int z=0;z<8;z++) {
-            for(int y=0;y<8;y++) {
-                setPixel(x,y,z, &color_dark);
+    color col = { 55, 55, 55 };
+
+    // shift the previous slices
+    for(int y=7; y >= 1; y--) {
+        for(int x=0; x < 8; x++) {
+            for(int z=0; z < 8; z++) {
+                color below = getPixel(x, y-1, z);
+                setPixel(x, y, z, &below);
             }
         }
     }
 
-    color col = { 55, 55, 55 };
-
+    // add the next slice
     uint8_t x = 4;
     uint8_t z = 4;
     uint8_t magic[4] = {0, 1, 0, -1};
@@ -90,16 +100,17 @@ void loop() {
                 x += magic[index%4];
                 z += magic[(index+1)%4];
 
-                int xoff = analogRead(DIAL) >> 4;
+                int xoff = 0;
                 int yoff = 0;
 
-                int h = fft_out[(count + xoff)%fft_size].i + yoff;
-                h = (h > 8)? 8: h;
-                h = (h < 0)? 0: h;
-
-                for(int y=0; y < h; y++) {
-                    setPixel(x, y, z, &col);
+                float h = 0;
+                for(int s=0; s < FFT_SIZE/64; s++) {
+                    h += fft_out[(s + (count + xoff)*FFT_SIZE/64)%FFT_SIZE].i + yoff;
                 }
+                h /= FFT_SIZE/64;
+
+                palettize(&col, h*32);
+                setPixel(x, 0, z, &col);
 
                 count++;
             }
