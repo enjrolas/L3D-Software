@@ -7,7 +7,7 @@
 #include "kiss_fftr.h"
 
 bool tried_connecting = false;
-SYSTEM_MODE(SEMI_AUTOMATIC);
+//SYSTEM_MODE(SEMI_AUTOMATIC);
 #define INTERNET_SWITCH D2
 
 #define PIN_X 14
