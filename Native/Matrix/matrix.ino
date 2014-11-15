@@ -12,6 +12,9 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
 
 SYSTEM_MODE(SEMI_AUTOMATIC);  //don't connect to the internet on boot
 #define BUTTON D2 //press this button to connect to the internet
+#define MODE D3
+bool onlinePressed=false;
+bool lastOnline=true;
 
 //sets a pixel at position (x,y,z) to the col parameter's color
 void setPixel(int x, int y, int z, color* col);
@@ -22,10 +25,6 @@ void drawMatrix(matrix* mat);
 
 matrix matrices[MATRIX_STRANDS];
 color black, matrixTip, matrixStrand;
-
-
-bool onlinePressed=false;
-bool lastOnline=true;
 
 double num;
 void setup() 
@@ -55,6 +54,7 @@ void setup()
     //initialize all the matrix 'strands'
     for(int i=0;i<MATRIX_STRANDS;i++)
         newMatrix(&matrices[i]);
+        
 }
 
 //sets up the online/offline switch

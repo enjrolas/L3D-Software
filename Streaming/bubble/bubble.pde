@@ -24,7 +24,7 @@ PImage logo;
 void setup()
 {
   logo=loadImage("logo.png");
-  //initMulticast();
+  initMulticast();
   cube=new color[side][side][side];
   print(center);
   size(displayWidth, displayHeight, P3D);

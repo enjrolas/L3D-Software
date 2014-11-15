@@ -9,6 +9,7 @@
 
 SYSTEM_MODE(SEMI_AUTOMATIC);  //don't connect to the internet on boot
 #define BUTTON D2 //press this button to connect to the internet
+#define MODE D3
 
 #define MATRIX 0
 #define FIREWORKS 1
@@ -18,7 +19,7 @@ SYSTEM_MODE(SEMI_AUTOMATIC);  //don't connect to the internet on boot
 
 bool onlinePressed=false;
 bool lastOnline=true;
-int demo=SQUARRAL;
+int demo=FIREWORKS;
 
 Adafruit_NeoPixel strip=Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
 
@@ -36,12 +37,7 @@ void setup() {
  uint32_t seed = millis(); 
  srand(seed); 
  initCube();
-  //set the input mode for the 'connect to cloud' button
-  pinMode(BUTTON, INPUT_PULLDOWN);
-    //a.k.a. onlinePressed is HIGH when the switch is set to 'online' and LOW when the switch is set to 'offline'
-    onlinePressed=digitalRead(BUTTON);
-    if(onlinePressed)
-        Spark.connect();
+ initCloudButton();
         
   initMatrix();
   initFireworks();
@@ -49,16 +45,23 @@ void setup() {
   computeRunTime();  
 }
 
-void computeRunTime()
+//sets up the online/offline switch
+void initCloudButton()
 {
-    runTime=1000+(rand()%1000)-500;
-//    if(demo==SQUARRAL)
-//        runTime*=2;
-    if(demo==PLASMA)  //plasma is more computationally intensive, so the frames take longer to render.  
-        runTime*=3/4;
+  //set the input mode for the 'connect to cloud' button
+  pinMode(BUTTON, INPUT_PULLUP);
+  pinMode(MODE, INPUT_PULLUP);
+    if(!digitalRead(MODE))
+        WiFi.listen();
+    //a.k.a. onlinePressed is HIGH when the switch is set to 'online' and LOW when the switch is set to 'offline'
+    onlinePressed=digitalRead(BUTTON);
+    if(onlinePressed)
+        Spark.connect();
 }
 
-void loop() {
+//checks to see if the 'online/offline' switch is switched
+void checkCloudButton()
+{
     //if the 'connect to cloud' button is pressed, try to connect to wifi.  
     //otherwise, run the program
     //note -- how does this behave when there are no wifi credentials loaded on the spark?
@@ -81,6 +84,25 @@ void loop() {
 
     lastOnline=onlinePressed;
     
+    if(!digitalRead(MODE))
+        WiFi.listen();
+}
+
+void computeRunTime()
+{
+//    runTime=2000;
+      runTime=1000+(rand()%1000)-500;
+//    if(demo==SQUARRAL)
+//        runTime*=2;
+    if(demo==PLASMA)  //plasma is more computationally intensive, so the frames take longer to render.  
+        runTime/=2;
+}
+
+void loop() {
+    //if the 'connect to cloud' button is pressed, try to connect to wifi.  
+    //otherwise, run the program
+    checkCloudButton();
+    
     
     if(fading)
         fade();
@@ -89,8 +111,8 @@ void loop() {
         blackBackground(strip);
         switch(demo)
         {
-            case(MATRIX):
-                updateMatrix(strip);
+         //   case(MATRIX):
+         //      updateMatrix(strip);
             break;
             case(FIREWORKS):
                 updateFireworks(strip);
@@ -110,6 +132,9 @@ void loop() {
         computeRunTime();
         frameCount=0;
         demo=rand()%DEMO_ROUTINES;
+       // demo++;
+        //if(demo>=DEMO_ROUTINES)
+        //    demo=0;
         fading=true;  
     }
     if(fading)

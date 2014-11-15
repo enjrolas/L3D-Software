@@ -7,25 +7,20 @@
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
 
 #define SIDE 8
-//SYSTEM_MODE(SEMI_AUTOMATIC);  //don't connect to the internet on boot
+SYSTEM_MODE(SEMI_AUTOMATIC);  //don't connect to the internet on boot
 #define BUTTON D2 //press this button to connect to the internet
+#define MODE D3
 int colorific;
 bool fading=false;
 int fadeValue=255;
-
-
 bool onlinePressed=false;
 bool lastOnline=true;
 
 void setup() {
     strip.begin();
     Spark.variable("colorific", &colorific, INT);
-    //set the input mode for the 'connect to cloud' button
     initCloudButton();
-
-    //initialize all the matrix 'strands'
-    for(int i=0;i<MATRIX_STRANDS;i++)
-        newMatrix(&matrices[i]);
+    
 }
 
 //sets up the online/offline switch
@@ -33,6 +28,9 @@ void initCloudButton()
 {
   //set the input mode for the 'connect to cloud' button
   pinMode(BUTTON, INPUT_PULLUP);
+  pinMode(MODE, INPUT_PULLUP);
+    if(!digitalRead(MODE))
+        WiFi.listen();
     //a.k.a. onlinePressed is HIGH when the switch is set to 'online' and LOW when the switch is set to 'offline'
     onlinePressed=digitalRead(BUTTON);
     if(onlinePressed)
@@ -63,10 +61,15 @@ void checkCloudButton()
     }
 
     lastOnline=onlinePressed;
+    
+    if(!digitalRead(MODE))
+        WiFi.listen();
 }
 
 void loop() {
-   checkCloudButton();
+    //if the 'connect to cloud' button is pressed, try to connect to wifi.  
+    //otherwise, run the program
+    checkCloudButton();
         
     if(!fading)
     {

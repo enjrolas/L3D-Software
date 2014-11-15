@@ -2,8 +2,9 @@
 // import UDP library
 import hypermedia.net.*;
 UDP udp;  // define the UDP object
-String ip       = "224.0.0.1";  // the remote IP address
-int port        = 6666;    // the destination port
+String ip="192.168.1.24";
+//String ip       = "224.0.0.1";  // the remote IP address
+int port        = 2000;    // the destination port
 int multicastPixels=170;
 
 void initMulticast()
@@ -12,7 +13,7 @@ void initMulticast()
   // and wait for incomming message
   // create a multicast connection on port 6000
   // and join the group at the address "224.0.0.1"
-  udp = new UDP( this, port, ip );
+  udp = new UDP( this);//, port, ip );
   // ... well, just verifies if it's really a multicast socket and blablabla
   println( "init as multicast socket ... "+udp.isMulticast() );
   println( "joins a multicast group  ... "+udp.isJoined() );
@@ -30,7 +31,7 @@ void sendData()
         index=z*64+y*8+x;
         data[index]=colorByte(cube[x][y][z]);
       }
-  udp.send( data);
+  udp.send( data, ip, port);
 }
 
 byte colorByte(color col)
