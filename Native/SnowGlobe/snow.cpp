@@ -4,7 +4,6 @@
 #include "colors.h"
 #include "cube.h"
 #include "util.h"
-#include "smear.h"
 
 #include "snow.h"
 

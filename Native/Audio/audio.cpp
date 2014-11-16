@@ -1,3 +1,11 @@
+
+/**************************************
+
+Audio by Owen Trueblood
+October 2014
+
+ *************************************/
+
 #include "application.h"
 #include <stdarg.h>
 #include <math.h>
@@ -7,8 +15,11 @@
 #include "kiss_fftr.h"
 
 bool tried_connecting = false;
-//SYSTEM_MODE(SEMI_AUTOMATIC);
-#define INTERNET_SWITCH D2
+SYSTEM_MODE(SEMI_AUTOMATIC);  //don't connect to the internet on boot
+#define BUTTON D2 //press this button to connect to the internet
+#define MODE D3
+bool onlinePressed=false;
+bool lastOnline=true;
 
 #define PIN_X 14
 #define PIN_Y 15
@@ -34,10 +45,12 @@ void updateFFT() {
 
     kiss_fftr(fft_cfg, fft_in, fft_out);
 }
+void initCloudButton();
+void checkCloudButton();
 
 void setup() {
     Serial.begin(9600);
-    pinMode(INTERNET_SWITCH, INPUT);
+    initCloudButton();
     pinMode(GAIN_CONTROL, OUTPUT);
     analogWrite(GAIN_CONTROL, 45); //put the gain right in the middle, for now
 
@@ -47,6 +60,50 @@ void setup() {
 
     cube_init();
 }
+
+//sets up the online/offline switch
+void initCloudButton()
+{
+  //set the input mode for the 'connect to cloud' button
+  pinMode(BUTTON, INPUT_PULLUP);
+  pinMode(MODE, INPUT_PULLUP);
+  if(!digitalRead(MODE))
+    WiFi.listen();
+  //a.k.a. onlinePressed is HIGH when the switch is set to 'online' and LOW when the switch is set to 'offline'
+  onlinePressed=digitalRead(BUTTON);
+  if(onlinePressed)
+    Spark.connect();
+}
+
+//checks to see if the 'online/offline' switch is switched
+void checkCloudButton()
+{
+  //if the 'connect to cloud' button is pressed, try to connect to wifi.  
+  //otherwise, run the program
+  //note -- how does this behave when there are no wifi credentials loaded on the spark?
+
+  //onlinePressed is HIGH when the switch is _not_ connected and LOW when the switch is connected
+  //a.k.a. onlinePressed is HIGH when the switch is set to 'online' and LOW when the switch is set to 'offline'
+  onlinePressed=digitalRead(BUTTON);
+    
+  if((!onlinePressed)&&(lastOnline))  //marked as 'offline'
+    {
+      lastOnline=onlinePressed;
+      Spark.disconnect();
+    }    
+
+  else if((onlinePressed)&&(!lastOnline))  //marked as 'online'
+    {
+      lastOnline=onlinePressed;
+      Spark.connect();
+    }
+
+  lastOnline=onlinePressed;
+    
+  if(!digitalRead(MODE))
+    WiFi.listen();
+}
+
 
 void palettize(color* col, int x) {
     /*
@@ -61,11 +118,7 @@ void palettize(color* col, int x) {
 }
 
 void loop() {
-    // connect to cloud if internet switch is set
-    if(digitalRead(INTERNET_SWITCH) && !tried_connecting) {
-        Spark.connect();
-        tried_connecting = true;
-    }
+  checkCloudButton();
 
     updateFFT();
 
