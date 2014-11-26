@@ -10,6 +10,7 @@ char data[512];
 #define PIXEL_TYPE WS2812B
 
 #define SIDE 8
+#define MODE D3
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
 char localIP[24];
@@ -26,10 +27,13 @@ int setPort(String _port);
 
 void setup() 
 {
-    port=2000;
+    port=2222;
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
   Udp.begin (port);
+  pinMode(MODE,INPUT_PULLUP);
+    if(!digitalRead(MODE))
+        WiFi.listen();
   Serial.begin(115200);
   Serial.println("initializing...");
   updateNetworkInfo();
@@ -100,6 +104,8 @@ if (bytesrecv==PIXEL_COUNT) {
         
     }
     strip.show();
+    if(!digitalRead(MODE))
+        WiFi.listen();
 }
 
 //sets a pixel at position (x,y,z) to the col parameter's color
