@@ -14,6 +14,7 @@ October 2014
 #include "cube.h"
 #include "kiss_fftr.h"
 
+bool tried_connecting = false;
 SYSTEM_MODE(SEMI_AUTOMATIC);  //don't connect to the internet on boot
 #define BUTTON D2 //press this button to connect to the internet
 #define MODE D3

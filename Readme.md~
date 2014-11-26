@@ -4,8 +4,8 @@ and Streaming programs, that stream data to the cube from a computer or phone ov
 
 For streaming programs, you'll need to load the Listener program(located in the /Streaming directory) onto the Spark, 
 and then run the program on your computer that generates the pattern for the cube.  Data is streamed via UDP multicast on port 
-2222, which most home routers support.  If you're not seeing any data come through, it's possible that your router is blocking
-multicast packets.  If you can fiddle with the router's settings, check to see if it's blocking packets on port 2222, and if 
+6000, which most home routers support.  If you're not seeing any data come through, it's possible that your router is blocking
+multicast packets.  If you can fiddle with the router's settings, check to see if it's blocking packets on port 6000, and if 
 it's disabling multicast.  
 
 If you have a network that requires you to click through a form to get access to the web, the processor in the cube
@@ -18,7 +18,7 @@ Follow the instructions [here](http://docs.spark.io/start/) to use your phone or
 
 If you prefer to work on the command line, you’ll need to plug the USB cable into your computer and follow the setup instructions [here](http://docs.spark.io/cli/) to install the command-line interface for the processor.  Once it’s installed, run the command ‘spark setup’, and a prompt will walk you through the process of creating a (free) account with Spark, loading your wifi credentials onto the processor and linking the processor to your account.
 
-Once your processor is set up, you’re ready to load a program onto it.  We prefer to work from the [Spark web interface](https://www.spark.io/build) — all the code is written in the browser, the compiler is in the cloud, and as long as your cube has a wifi connection, you load a new program onto the cube just by clicking a button.  To get started, check out the [example included in our L3D library](https://github.com/enjrolas/L3D-library), and try flashing it onto your cube.
+Once your processor is set up, you’re ready to load a program onto it.  We prefer to work from the [Spark web interface](https://www.spark.io/build) — all the code is written in the browser, the compiler is in the cloud, and as long as your cube has a wifi connection, you load a new program onto the cube just by clicking a button.  To get started, check out the [example included in our L3D library](LINK GOES HERE), and try flashing it onto your cube.
 
 Unfortunately, Spark doesn’t have a great setup yet for sharing code online.  We’re working with them to set something up, but until then, the best way to ‘fork’ our code and start editing it is to create a new app in the spark editor, and copy-paste the code from the github repository into the app.  
 
